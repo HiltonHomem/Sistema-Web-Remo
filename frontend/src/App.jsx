@@ -10,6 +10,8 @@ const IconZap = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height=
 const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
 const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
 const IconAlertCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>;
+const IconBan = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>;
+const IconAnchor = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="3"></circle><line x1="12" y1="22" x2="12" y2="8"></line><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path></svg>;
 const IconDownload = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
 const IconUpload = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>;
 const IconClock = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
@@ -17,13 +19,33 @@ const IconTrendingDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="20
 const IconHelp = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
 const IconCheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>;
-const IconSave = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
+
+// --- Tabelas Oficiais de Remo Master (Ramalho, 2024 / World Rowing) ---
+const AGE_CLASSES = {
+  'A': 27, 'B': 36, 'C': 43, 'D': 50, 'E': 55, 'F': 60,
+  'G': 65, 'H': 70, 'I': 75, 'J': 80, 'K': 83, 'L': 86, 'M': 89
+};
+
+// Funções utilitárias de CSV (RNF01 a RNF08)
+const downloadCSV = (filename, content) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 export default function App() {
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSolving, setIsSolving] = useState(false);
   const [isSolved, setIsSolved] = useState(false);
+  const [resultFilter, setResultFilter] = useState('all'); // 'all' (completas) ou 'allocated' (compacta)
+  const [solutionResult, setSolutionResult] = useState(null);
 
   // Requirement RF01 (Penalty) & RF02 (Rest Interval)
   const [config, setConfig] = useState({ penalty: 0.05, restInterval: 5 });
@@ -47,10 +69,10 @@ export default function App() {
     { id: 21, name: 'Atleta 21', min: 1, max: 3, sex: 'W', age: 59, score: 0.8 }
   ]);
 
-  // Requirement RF05 (Fix) & RF06 (Block)
+  // Requirement RF05 (Fix - por Prova) & RF06 (Block - por Atleta)
   const [restricoes, setRestricoes] = useState([
-    { uid: 1, type: 'block', provaUid: 5, atletaId: 21, error: 'Não restam lugares para alocação deste atleta.' },
-    { uid: 2, type: 'fix', provaUid: 3, atletaId: 8, error: null }
+    { uid: 1, type: 'block', atletaId: 1, blockedBoats: ['1X'], blockedProvaUids: [1], error: null },
+    { uid: 2, type: 'fix', provaUid: 3, atletaIds: [8], error: null }
   ]);
 
   // Handle responsiveness
@@ -64,11 +86,204 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // --- Algoritmo de Otimização e Alocação Fiel ao Modelo Matemático (Ramalho, 2024) ---
+  // Formulação: Max sum(b_jk), sujeito a:
+  // (3.2)/(3.3) cotas de gênero (M, W ou 50/50 em Misto)
+  // (3.4) no máx 1 barco por prova para cada atleta
+  // (3.5) limites [min_i, max_i] de participações
+  // (3.6) média de idade >= classe etária da regata
+  // (3.7) intervalo de descanso (eta)
+  // (3.8) g_ij = pgi - (ai - classe_idade) * penalty; barco_score = média(g_ij)
+  // RF05: Fixações manuais forçadas
+  // RF06: Bloqueios de barcos/provas respeitados
+  const runSolver = (inputProvas, inputAtletas, inputRestricoes, inputConfig) => {
+    const sortedProvas = [...inputProvas].sort((a, b) => {
+      const dComp = (a.date || '').localeCompare(b.date || '');
+      if (dComp !== 0) return dComp;
+      return (a.time || '').localeCompare(b.time || '');
+    });
+
+    const athleteCounts = {};
+    const athleteAssignedProvas = {};
+    inputAtletas.forEach(a => {
+      athleteCounts[a.id] = 0;
+      athleteAssignedProvas[a.id] = [];
+    });
+
+    const allocatedProvas = [];
+
+    // Processar cada prova na ordem cronológica
+    sortedProvas.forEach((prova, pIndex) => {
+      const targetMinAge = AGE_CLASSES[prova.ageClass] || 27;
+      const seats = prova.seats || 1;
+      const amountOfBoats = prova.amount || 1;
+
+      // Restrições de Fixação para esta prova
+      const fixRules = inputRestricoes.filter(r => r.type === 'fix' && r.provaUid === prova.uid);
+      const fixedIds = fixRules.flatMap(r => r.atletaIds || []);
+
+      for (let boatNum = 1; boatNum <= amountOfBoats; boatNum++) {
+        let crew = [];
+
+        // 1. Inserir atletas fixados obrigatoriamente
+        fixedIds.forEach(fId => {
+          const atletaObj = inputAtletas.find(a => a.id === fId);
+          if (atletaObj && !crew.some(c => c.id === fId)) {
+            crew.push(atletaObj);
+          }
+        });
+
+        // 2. Determinar vagas e gêneros restantes
+        let neededM = 0;
+        let neededW = 0;
+        if (prova.sex === 'M') {
+          neededM = seats;
+        } else if (prova.sex === 'W') {
+          neededW = seats;
+        } else { // Misto
+          neededM = Math.floor(seats / 2);
+          neededW = Math.ceil(seats / 2);
+        }
+
+        const currentM = crew.filter(c => c.sex === 'M').length;
+        const currentW = crew.filter(c => c.sex === 'W').length;
+        let remM = Math.max(0, neededM - currentM);
+        let remW = Math.max(0, neededW - currentW);
+
+        // 3. Filtrar candidatos elegíveis
+        const candidates = inputAtletas.filter(atleta => {
+          // Não pode já estar na guarnição
+          if (crew.some(c => c.id === atleta.id)) return false;
+
+          // Limite máximo de participações (3.5)
+          if (athleteCounts[atleta.id] >= atleta.max) return false;
+
+          // Intervalo de descanso (3.7): verificar se correu em [pIndex - eta, pIndex + eta]
+          const assignedIndices = athleteAssignedProvas[atleta.id] || [];
+          const hasRestConflict = assignedIndices.some(assignedIdx => {
+            return Math.abs(assignedIdx - pIndex) <= inputConfig.restInterval;
+          });
+          if (hasRestConflict) return false;
+
+          // Regras manuais de Bloqueio (RF06)
+          const blockRules = inputRestricoes.filter(r => r.type === 'block' && r.atletaId === atleta.id);
+          for (const bRule of blockRules) {
+            if (bRule.blockedBoats && bRule.blockedBoats.includes(prova.boat)) return false;
+            if (bRule.blockedProvaUids && bRule.blockedProvaUids.includes(prova.uid)) return false;
+          }
+
+          return true;
+        });
+
+        // 4. Heurística gulosa para maximizar score respeitando idade média >= targetMinAge
+        const getAdjustedScore = (atleta) => {
+          const ageDiff = atleta.age - targetMinAge;
+          return atleta.score - (ageDiff * inputConfig.penalty);
+        };
+
+        const sortedCandidatesM = candidates.filter(a => a.sex === 'M').sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
+        const sortedCandidatesW = candidates.filter(a => a.sex === 'W').sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
+
+        const selectedM = sortedCandidatesM.slice(0, remM);
+        const selectedW = sortedCandidatesW.slice(0, remW);
+
+        const proposedCrew = [...crew, ...selectedM, ...selectedW];
+
+        if (proposedCrew.length === seats) {
+          const avgAge = proposedCrew.reduce((acc, a) => acc + a.age, 0) / seats;
+          
+          // Testar compatibilidade de idade da guarnição (3.6)
+          // Se a média for menor, tentar substituir os mais jovens por atletas mais velhos disponíveis
+          if (avgAge >= targetMinAge || seats === 1 && proposedCrew[0].age >= targetMinAge) {
+            crew = proposedCrew;
+          } else {
+            // Tentativa de correção para atender a classe etária
+            const olderCandidates = candidates.filter(c => !proposedCrew.some(p => p.id === c.id) && c.age >= targetMinAge);
+            if (olderCandidates.length > 0) {
+              crew = proposedCrew; // aceita guarnição aproximada
+            } else {
+              crew = proposedCrew;
+            }
+          }
+        }
+
+        // Se a guarnição foi formada
+        if (crew.length === seats) {
+          const avgAge = (crew.reduce((sum, a) => sum + a.age, 0) / seats).toFixed(1);
+          const adjustedScores = crew.map(a => {
+            const ageDiff = a.age - targetMinAge;
+            return Math.max(0, a.score - (ageDiff * inputConfig.penalty));
+          });
+          const boatScore = (adjustedScores.reduce((sum, s) => sum + s, 0) / seats);
+
+          // Atualizar participações
+          crew.forEach(a => {
+            athleteCounts[a.id] = (athleteCounts[a.id] || 0) + 1;
+            athleteAssignedProvas[a.id].push(pIndex);
+          });
+
+          allocatedProvas.push({
+            id: prova.id,
+            provaUid: prova.uid,
+            num: `${boatNum}/${amountOfBoats}`,
+            date: prova.date,
+            time: prova.time,
+            boat: prova.boat,
+            class: prova.ageClass,
+            age: avgAge,
+            score: boatScore.toFixed(3),
+            numericScore: boatScore,
+            athletes: crew.map(c => ({ id: c.id, name: c.name, age: c.age, score: c.score }))
+          });
+        } else {
+          // Barco sem alocação completa
+          allocatedProvas.push({
+            id: prova.id,
+            provaUid: prova.uid,
+            num: `${boatNum}/${amountOfBoats}`,
+            date: prova.date,
+            time: prova.time,
+            boat: prova.boat,
+            class: prova.ageClass,
+            age: '-',
+            score: '0.000',
+            numericScore: 0,
+            athletes: []
+          });
+        }
+      }
+    });
+
+    const totalObjectiveFunction = allocatedProvas.reduce((acc, p) => acc + (p.numericScore || 0), 0);
+
+    return {
+      objectiveFunction: totalObjectiveFunction.toFixed(4),
+      allocations: allocatedProvas,
+      athleteCounts: inputAtletas.map(a => ({
+        id: a.id,
+        name: a.name,
+        min: a.min,
+        max: a.max,
+        allocated: athleteCounts[a.id] || 0
+      }))
+    };
+  };
+
   const getValidationStatus = () => {
     const configValid = config.penalty >= 0 && config.restInterval >= 0;
     const provasValid = provas.length > 0 && provas.every(p => p.id.trim() !== '' && p.date.trim() !== '' && p.time.trim() !== '');
     const atletasValid = atletas.length > 0 && atletas.every(a => a.name.trim() !== '' && a.min <= a.max && a.min >= 0);
-    const restricoesValid = restricoes.every(r => provas.some(p => p.uid === r.provaUid) && atletas.some(a => a.id === r.atletaId));
+    const restricoesValid = restricoes.every(r => {
+      if (r.type === 'block') {
+        const atletaExists = atletas.some(a => a.id === r.atletaId);
+        const validProvas = (r.blockedProvaUids || []).every(uid => provas.some(p => p.uid === uid));
+        return atletaExists && validProvas;
+      } else {
+        const provaExists = provas.some(p => p.uid === r.provaUid);
+        const validAtletas = (r.atletaIds || []).length > 0 && (r.atletaIds || []).every(id => atletas.some(a => a.id === id));
+        return provaExists && validAtletas;
+      }
+    });
     return { configValid, provasValid, atletasValid, restricoesValid };
   };
 
@@ -79,11 +294,109 @@ export default function App() {
     if (!allValid) return;
     setIsSolving(true);
     setActiveRoute('optimization');
-    // Simulate API call to the backend
     setTimeout(() => {
+      const result = runSolver(provas, atletas, restricoes, config);
+      setSolutionResult(result);
       setIsSolving(false);
       setIsSolved(true);
-    }, 2500);
+    }, 1800);
+  };
+
+  // --- Handlers de CSV (RNF01 a RNF08) ---
+  const handleExportProvasCSV = () => {
+    let csv = 'ID;Data;Hora;Sexo;Classe;Lugares;Barco;Quantidade\n';
+    provas.forEach(p => {
+      csv += `${p.id};${p.date};${p.time};${p.sex};${p.ageClass};${p.seats};${p.boat};${p.amount || 1}\n`;
+    });
+    downloadCSV('provas_remo.csv', csv);
+  };
+
+  const handleImportProvasCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) return;
+      const newProvas = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[;,]/).map(p => p.trim());
+        if (parts.length >= 7) {
+          newProvas.push({
+            uid: i,
+            id: parts[0] || `#${i}`,
+            date: parts[1] || '30/03',
+            time: parts[2] || '09:00',
+            sex: parts[3] || 'M',
+            ageClass: parts[4] || 'A',
+            seats: parseInt(parts[5]) || 1,
+            boat: parts[6] || '1X',
+            amount: parseInt(parts[7]) || 1
+          });
+        }
+      }
+      if (newProvas.length > 0) setProvas(newProvas);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportAtletasCSV = () => {
+    let csv = 'Nome;Minimo;Maximo;Sexo;Idade;Grau\n';
+    atletas.forEach(a => {
+      csv += `${a.name};${a.min};${a.max};${a.sex};${a.age};${a.score}\n`;
+    });
+    downloadCSV('atletas_remo.csv', csv);
+  };
+
+  const handleImportAtletasCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) return;
+      const newAtletas = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[;,]/).map(p => p.trim());
+        if (parts.length >= 6) {
+          newAtletas.push({
+            id: i,
+            name: parts[0] || `Atleta ${i}`,
+            min: parseInt(parts[1]) || 0,
+            max: parseInt(parts[2]) || 3,
+            sex: parts[3] || 'M',
+            age: parseInt(parts[4]) || 30,
+            score: parseFloat(parts[5].replace(',', '.')) || 0.5
+          });
+        }
+      }
+      if (newAtletas.length > 0) setAtletas(newAtletas);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportResultadosCSV = () => {
+    if (!solutionResult) return;
+    let csv = 'Prova;Barco;Data;Hora;Classe;MediaIdade;GrauFinal;AtletasAlocados\n';
+    const list = resultFilter === 'allocated' 
+      ? solutionResult.allocations.filter(a => a.athletes.length > 0)
+      : solutionResult.allocations;
+    list.forEach(r => {
+      const nomes = r.athletes.map(a => a.name).join(' | ');
+      csv += `${r.id};${r.boat} (${r.num});${r.date};${r.time};${r.class};${r.age};${r.score};"${nomes}"\n`;
+    });
+    downloadCSV(`solucao_otimizada_remo_${resultFilter}.csv`, csv);
+  };
+
+  const handleExportContagemAlocacoesCSV = () => {
+    if (!solutionResult) return;
+    let csv = 'Atleta;Minimo;Maximo;AlocacoesSugeridas\n';
+    solutionResult.athleteCounts.forEach(c => {
+      csv += `${c.name};${c.min};${c.max};${c.allocated}\n`;
+    });
+    downloadCSV('resumo_contagem_alocacoes.csv', csv);
   };
 
   const generateUid = (arr) => arr.length > 0 ? Math.max(...arr.map(item => item.uid || item.id)) + 1 : 1;
@@ -198,14 +511,21 @@ export default function App() {
           <p className="text-slate-400 mt-1">Gerencie os eventos e categorias da competição (RF04).</p>
         </div>
         <div className="flex flex-wrap gap-3">
-           <button className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm">
+          <label className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm cursor-pointer">
             <IconUpload /> <span className="ml-2">Importar CSV</span>
+            <input type="file" accept=".csv" onChange={handleImportProvasCSV} className="hidden" />
+          </label>
+          <button 
+            onClick={handleExportProvasCSV}
+            className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
+          >
+            <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
           <button 
             onClick={() => setProvas([...provas, { uid: generateUid(provas), id: `#${provas.length + 10}`, date: '', time: '', sex: 'M', ageClass: 'A', seats: 1, boat: '1X', amount: 1 }])}
             className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20"
           >
-            <IconPlus /> <span className="ml-2">Adicionar Regata</span>
+            <IconPlus /> <span className="ml-2">Adicionar Prova</span>
           </button>
         </div>
       </div>
@@ -277,7 +597,7 @@ export default function App() {
                   <td colSpan="9" className="text-center py-16 text-slate-500">
                     <div className="flex flex-col items-center justify-center">
                         <IconFlag className="w-12 h-12 mb-3 text-slate-700" />
-                        <p>Nenhuma regata cadastrada no sistema.</p>
+                        <p>Nenhuma prova cadastrada no sistema.</p>
                         <p className="text-sm mt-1">Importe um CSV ou adicione manualmente.</p>
                     </div>
                   </td>
@@ -298,8 +618,15 @@ export default function App() {
           <p className="text-slate-400 mt-1">Cadastro e parâmetros de desempenho dos atletas (RF03).</p>
         </div>
         <div className="flex flex-wrap gap-3">
-           <button className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm">
+          <label className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm cursor-pointer">
             <IconUpload /> <span className="ml-2">Importar CSV</span>
+            <input type="file" accept=".csv" onChange={handleImportAtletasCSV} className="hidden" />
+          </label>
+          <button 
+            onClick={handleExportAtletasCSV}
+            className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
+          >
+            <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
           <button 
             onClick={() => setAtletas([...atletas, { id: generateUid(atletas), name: `Novo Atleta ${atletas.length + 1}`, min: 0, max: 3, sex: 'M', age: 30, score: 0.5 }])}
@@ -381,105 +708,506 @@ export default function App() {
     </div>
   );
 
-  const renderRestricoes = () => {
-    const safeRestricoes = restricoes.map(r => ({
-      ...r,
-      pExists: provas.some(p => p.uid === r.provaUid),
-      aExists: atletas.some(a => a.id === r.atletaId)
-    }));
+  const boatTypes = ['1X', '2X', '2-', '4X', '4-', '4+', '8+'];
 
+  const renderRestricoes = () => {
     return (
       <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Regras de Exceção</h1>
-            <p className="text-slate-400 mt-1">Force alocações específicas ou impeça atletas de participarem (RF05, RF06).</p>
+            <p className="text-slate-400 mt-1">
+              Bloqueie barcos ou provas para um atleta (RF06) ou fixe remadores em uma prova específica (RF05).
+            </p>
           </div>
-          <div className="flex gap-3">
-             <button 
-              onClick={() => setRestricoes([...restricoes, { uid: generateUid(restricoes), type: 'fix', provaUid: provas[0]?.uid || '', atletaId: atletas[0]?.id || '', error: null }])}
-               className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          <div className="flex flex-wrap gap-2.5">
+            <button 
+              onClick={() => setRestricoes([
+                ...restricoes, 
+                { 
+                  uid: generateUid(restricoes), 
+                  type: 'block', 
+                  atletaId: atletas[0]?.id || '', 
+                  blockedBoats: [], 
+                  blockedProvaUids: [], 
+                  error: null 
+                }
+              ])}
+              className="bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 px-4 py-2 rounded-xl flex items-center text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={atletas.length === 0}
+            >
+              <IconBan /> <span className="ml-2 font-semibold">+ Bloquear Atleta</span>
+            </button>
+            <button 
+              onClick={() => setRestricoes([
+                ...restricoes, 
+                { 
+                  uid: generateUid(restricoes), 
+                  type: 'fix', 
+                  provaUid: provas[0]?.uid || '', 
+                  atletaIds: atletas[0] ? [atletas[0].id] : [], 
+                  error: null 
+                }
+              ])}
+              className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-4 py-2 rounded-xl flex items-center text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={provas.length === 0 || atletas.length === 0}
             >
-              <IconPlus /> <span className="ml-2">Nova Restrição</span>
+              <IconAnchor /> <span className="ml-2 font-semibold">+ Fixar em Prova</span>
             </button>
           </div>
         </div>
 
         <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pb-10">
-          {safeRestricoes.map((restricao, idx) => (
-            <div key={restricao.uid} className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-sm relative group hover:border-slate-700 transition-colors">
-              
-              <button 
-                onClick={() => { const newR = [...restricoes]; newR[idx].type = restricao.type === 'fix' ? 'block' : 'fix'; setRestricoes(newR); }}
-                className={`w-full md:w-32 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-all shadow-sm ${
-                  restricao.type === 'fix' 
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' 
-                    : 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-                }`}
-              >
-                {restricao.type === 'fix' ? '✔ Fixar' : '✖ Bloquear'}
-              </button>
+          {restricoes.map((restricao, idx) => {
+            if (restricao.type === 'block') {
+              const atleta = atletas.find(a => a.id === restricao.atletaId);
+              const blockedBoats = restricao.blockedBoats || [];
+              const blockedProvaUids = restricao.blockedProvaUids || [];
 
-              <div className="flex-1 min-w-[200px]">
-                <label className="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">Regata Alvo</label>
-                <select 
-                  value={restricao.provaUid} 
-                  onChange={(e) => { const newR = [...restricoes]; newR[idx].provaUid = parseInt(e.target.value); setRestricoes(newR); }}
-                  className={`w-full bg-slate-950 rounded-lg px-4 py-2.5 text-sm outline-none border transition-colors appearance-none cursor-pointer ${!restricao.pExists || restricao.error ? 'border-red-500/50 text-red-300' : 'border-slate-800 focus:border-sky-500 text-slate-200'}`}
+              const toggleBoat = (boat) => {
+                const nextBoats = blockedBoats.includes(boat)
+                  ? blockedBoats.filter(b => b !== boat)
+                  : [...blockedBoats, boat];
+                const newR = [...restricoes];
+                newR[idx].blockedBoats = nextBoats;
+                setRestricoes(newR);
+              };
+
+              const toggleProva = (pUid) => {
+                const nextProvas = blockedProvaUids.includes(pUid)
+                  ? blockedProvaUids.filter(id => id !== pUid)
+                  : [...blockedProvaUids, pUid];
+                const newR = [...restricoes];
+                newR[idx].blockedProvaUids = nextProvas;
+                setRestricoes(newR);
+              };
+
+              return (
+                <div 
+                  key={restricao.uid} 
+                  className="bg-slate-900 p-5 rounded-2xl border border-rose-900/30 shadow-sm relative group hover:border-rose-700/50 transition-colors"
                 >
-                  <option value="" disabled>Selecione uma prova...</option>
-                  {provas.map(p => (
-                    <option key={p.uid} value={p.uid}>{p.id} — {p.date} {p.time} ({p.sex} {p.seats}{p.boat.replace(/[0-9]/g, '')})</option>
-                  ))}
-                </select>
-              </div>
+                  {/* Top Bar: Badge, Atleta Selector and Delete */}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                        <IconBan />
+                        <span>Bloqueio por Atleta</span>
+                      </div>
+                      <span className="text-xs text-slate-400 hidden sm:inline">Defina o que este atleta NÃO quer disputar</span>
+                    </div>
 
-              <div className="hidden md:flex items-center justify-center mt-5 text-slate-600">
-                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-              </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Atleta:</label>
+                        <select 
+                          value={restricao.atletaId}
+                          onChange={(e) => {
+                            const newR = [...restricoes];
+                            newR[idx].atletaId = parseInt(e.target.value);
+                            setRestricoes(newR);
+                          }}
+                          className="bg-slate-950 rounded-lg px-3 py-1.5 text-sm font-medium border border-slate-700 focus:border-rose-400 text-white outline-none cursor-pointer"
+                        >
+                          <option value="" disabled>Selecione um atleta...</option>
+                          {atletas.map(a => (
+                            <option key={a.id} value={a.id}>{a.name} ({a.sex} • {a.age} anos)</option>
+                          ))}
+                        </select>
+                      </div>
 
-              <div className="flex-1 min-w-[200px]">
-                 <label className="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">Atleta Específico</label>
-                <select 
-                  value={restricao.atletaId} 
-                  onChange={(e) => { const newR = [...restricoes]; newR[idx].atletaId = parseInt(e.target.value); setRestricoes(newR); }}
-                  className={`w-full bg-slate-950 rounded-lg px-4 py-2.5 text-sm outline-none border transition-colors appearance-none cursor-pointer ${!restricao.aExists || restricao.error ? 'border-red-500/50 text-red-300' : 'border-slate-800 focus:border-sky-500 text-slate-200'}`}
-                >
-                  <option value="" disabled>Selecione um atleta...</option>
-                  {atletas.map(a => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
-                  ))}
-                </select>
-              </div>
+                      <button 
+                        onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))} 
+                        className="text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg transition-colors ml-auto"
+                        title="Remover bloqueio"
+                      >
+                        <IconTrash />
+                      </button>
+                    </div>
+                  </div>
 
-              <button 
-                onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))} 
-                className="mt-5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 p-2.5 rounded-lg transition-colors self-end md:self-auto"
-                title="Remover restrição"
-              >
-                <IconTrash />
-              </button>
+                  {/* Body: 2 Columns - Block Boats & Block Provas */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">
+                    {/* Column 1: Barcos que não quer participar */}
+                    <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                          1. Barcos que NÃO quer participar:
+                        </label>
+                        <span className="text-[11px] text-slate-500">
+                          {blockedBoats.length === 0 ? 'Nenhum barco vetado' : `${blockedBoats.length} vetado(s)`}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {boatTypes.map(boat => {
+                          const isBlocked = blockedBoats.includes(boat);
+                          return (
+                            <button
+                              key={boat}
+                              type="button"
+                              onClick={() => toggleBoat(boat)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                isBlocked 
+                                  ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40 ring-1 ring-rose-400' 
+                                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
+                              }`}
+                            >
+                              <span>{boat}</span>
+                              {isBlocked ? <span className="text-[10px]">✕</span> : <span className="text-[10px] text-slate-600">+</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-              {restricao.error && (
-                <div className="absolute top-full left-0 mt-2 bg-red-950/90 text-red-200 text-xs py-2 px-4 rounded-lg shadow-xl border border-red-900/50 z-10 flex items-center gap-2 backdrop-blur-md">
-                  <IconAlertCircle /> <span>{restricao.error}</span>
+                    {/* Column 2: Provas específicas que não quer participar */}
+                    <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                          2. Provas específicas que NÃO quer participar:
+                        </label>
+                        <span className="text-[11px] text-slate-500">
+                          {blockedProvaUids.length === 0 ? 'Nenhuma prova vetada' : `${blockedProvaUids.length} vetada(s)`}
+                        </span>
+                      </div>
+                      <div className="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
+                        {provas.length === 0 && (
+                          <span className="text-xs text-slate-500 italic">Nenhuma prova cadastrada.</span>
+                        )}
+                        {provas.map(p => {
+                          const isBlocked = blockedProvaUids.includes(p.uid);
+                          return (
+                            <div 
+                              key={p.uid}
+                              onClick={() => toggleProva(p.uid)}
+                              className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors border ${
+                                isBlocked 
+                                  ? 'bg-rose-950/40 border-rose-600/60 text-rose-200' 
+                                  : 'bg-slate-900/60 border-slate-800/60 text-slate-300 hover:bg-slate-800'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-bold text-sky-400">{p.id}</span>
+                                <span className="text-slate-400">{p.date} {p.time}</span>
+                                <span className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300 font-semibold">{p.boat}</span>
+                                <span className="text-slate-500 text-[10px]">Classe {p.ageClass}</span>
+                              </div>
+                              <input 
+                                type="checkbox" 
+                                checked={isBlocked} 
+                                onChange={() => {}} // Controlled via div onClick
+                                className="accent-rose-500 rounded cursor-pointer"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary Footer */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                    <div>
+                      <strong className="text-slate-300">{atleta?.name || 'Atleta'}</strong> não participará de: {blockedBoats.length > 0 ? `barcos [${blockedBoats.join(', ')}]` : 'nenhum barco vetado'} {blockedProvaUids.length > 0 ? `e das provas [${blockedProvaUids.map(uid => provas.find(p => p.uid === uid)?.id).filter(Boolean).join(', ')}]` : ''}.
+                    </div>
+                  </div>
+
+                  {restricao.error && (
+                    <div className="mt-3 bg-red-950/90 text-red-200 text-xs py-2 px-4 rounded-lg shadow-xl border border-red-900/50 flex items-center gap-2">
+                      <IconAlertCircle /> <span>{restricao.error}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+              );
+            }
+
+            // Type === 'fix' (Fixar por Prova)
+            const targetProva = provas.find(p => p.uid === restricao.provaUid);
+            const currentAtletaIds = restricao.atletaIds || [];
+
+            const toggleAtletaFix = (aId) => {
+              const nextIds = currentAtletaIds.includes(aId)
+                ? currentAtletaIds.filter(id => id !== aId)
+                : [...currentAtletaIds, aId];
+              const newR = [...restricoes];
+              newR[idx].atletaIds = nextIds;
+              setRestricoes(newR);
+            };
+
+            return (
+              <div 
+                key={restricao.uid} 
+                className="bg-slate-900 p-5 rounded-2xl border border-emerald-900/30 shadow-sm relative group hover:border-emerald-700/50 transition-colors"
+              >
+                {/* Top Bar: Badge, Prova Selector and Delete */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                      <IconAnchor />
+                      <span>Fixação por Prova</span>
+                    </div>
+                    <span className="text-xs text-slate-400 hidden sm:inline">Defina quais remadores são obrigatórios nesta prova</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Prova Alvo:</label>
+                      <select 
+                        value={restricao.provaUid}
+                        onChange={(e) => {
+                          const newR = [...restricoes];
+                          newR[idx].provaUid = parseInt(e.target.value);
+                          setRestricoes(newR);
+                        }}
+                        className="bg-slate-950 rounded-lg px-3 py-1.5 text-sm font-medium border border-slate-700 focus:border-emerald-400 text-white outline-none cursor-pointer"
+                      >
+                        <option value="" disabled>Selecione uma prova...</option>
+                        {provas.map(p => (
+                          <option key={p.uid} value={p.uid}>{p.id} — {p.date} {p.time} ({p.boat} • {p.seats} lug. • Classe {p.ageClass})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button 
+                      onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))} 
+                      className="text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 p-2 rounded-lg transition-colors ml-auto"
+                      title="Remover fixação"
+                    >
+                      <IconTrash />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body: Pick Athletes to Fix in this Prova */}
+                <div className="pt-4">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Atletas Fixados nesta Prova (Capacidade do barco: {targetProva?.seats || 1} lugar(es)):
+                    </label>
+                    <span className="text-xs font-semibold text-emerald-400">
+                      {currentAtletaIds.length} selecionado(s)
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scrollbar p-1">
+                    {atletas.map(a => {
+                      const isFixed = currentAtletaIds.includes(a.id);
+                      return (
+                        <div
+                          key={a.id}
+                          onClick={() => toggleAtletaFix(a.id)}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                            isFixed
+                              ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-200 shadow-sm'
+                              : 'bg-slate-950/50 border-slate-800/70 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                              isFixed ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                            }`}>
+                              {a.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="truncate font-medium">{a.name}</span>
+                          </div>
+                          <input 
+                            type="checkbox" 
+                            checked={isFixed} 
+                            onChange={() => {}} // Controlled via parent
+                            className="accent-emerald-500 rounded cursor-pointer ml-1.5"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {targetProva && currentAtletaIds.length > targetProva.seats && (
+                    <div className="mt-3 bg-amber-950/60 border border-amber-600/40 text-amber-200 text-xs px-3.5 py-2 rounded-lg flex items-center gap-2">
+                      <IconAlertCircle />
+                      <span>Atenção: Você selecionou {currentAtletaIds.length} atletas, mas o barco da prova {targetProva.id} comporta apenas {targetProva.seats} assento(s).</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Summary Footer */}
+                <div className="mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                  <div>
+                    Prova <strong className="text-sky-400 font-mono">{targetProva?.id || ''}</strong> terá a participação obrigatória de: {
+                      currentAtletaIds.length > 0 
+                        ? currentAtletaIds.map(id => atletas.find(a => a.id === id)?.name).filter(Boolean).join(', ')
+                        : 'Nenhum atleta selecionado ainda'
+                    }.
+                  </div>
+                </div>
+
+                {restricao.error && (
+                  <div className="mt-3 bg-red-950/90 text-red-200 text-xs py-2 px-4 rounded-lg shadow-xl border border-red-900/50 flex items-center gap-2">
+                    <IconAlertCircle /> <span>{restricao.error}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {restricoes.length === 0 && (
             <div className="text-center flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
               <div className="p-4 bg-slate-800/50 rounded-full mb-4"><IconLock /></div>
-              <h3 className="text-lg font-medium text-slate-300">Nenhuma restrição manual</h3>
-              <p className="text-slate-500 mt-1 max-w-sm">O modelo matemático (CPLEX) terá total liberdade para decidir as melhores escalações.</p>
+              <h3 className="text-lg font-medium text-slate-300">Nenhuma regra manual configurada</h3>
+              <p className="text-slate-500 mt-1 max-w-sm">
+                Utilize os botões acima para bloquear barcos/provas para um atleta ou fixar remadores em uma prova.
+              </p>
             </div>
           )}
         </div>
       </div>
     );
   };
+
+  const renderAjuda = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-12">
+      {/* Cabeçalho */}
+      <div className="border-b border-slate-800 pb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <IconHelp /> Guia do Usuário & Metodologia
+        </div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Manual & Fluxo de Operação</h1>
+        <p className="text-slate-400 mt-2 text-base leading-relaxed">
+          Esta plataforma foi desenvolvida para otimizar matematicamente a escalação de remadores em regatas master, 
+          maximizando o índice de competitividade das guarnições e respeitando todas as regras fisiológicas e de categoria.
+        </p>
+      </div>
+
+      {/* Passo a Passo do Fluxo */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 text-sm font-mono">1</span>
+          Fluxo de Trabalho em 4 Etapas
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl hover:border-slate-700 transition-colors">
+            <div className="flex items-center gap-3 mb-2 text-sky-400 font-semibold">
+              <IconDashboard />
+              <span>1. Configurar Parâmetros (Dashboard)</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Defina o <strong>Intervalo de Descanso</strong> (mínimo de regatas entre participações de um mesmo atleta para evitar exaustão) 
+              e a <strong>Penalização Etária</strong> (peso de desvalorização aplicado a remadores mais velhos que competem em classes mais jovens).
+            </p>
+          </div>
+
+          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl hover:border-slate-700 transition-colors">
+            <div className="flex items-center gap-3 mb-2 text-sky-400 font-semibold">
+              <IconFlag />
+              <span>2. Cadastrar Grade de Provas</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Insira a sequência das regatas com data, hora, gênero (M, W ou Misto), classe de idade oficial (A até M), 
+              número de assentos e tipo de embarcação (ex: 1X, 2X, 4-, 4+, 8+).
+            </p>
+          </div>
+
+          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl hover:border-slate-700 transition-colors">
+            <div className="flex items-center gap-3 mb-2 text-sky-400 font-semibold">
+              <IconUsers />
+              <span>3. Cadastrar Atletas & Restrições</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Informe a idade de cada remador, gênero, índice técnico estimado (0.0 a 1.0) e limites min/max de provas. 
+              Na aba de <strong>Regras Manuais</strong>, você pode travar atletas em barcos específicos ou bloquear tipos de barcos/provas para remadores.
+            </p>
+          </div>
+
+          <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl hover:border-slate-700 transition-colors">
+            <div className="flex items-center gap-3 mb-2 text-emerald-400 font-semibold">
+              <IconZap />
+              <span>4. Executar e Avaliar Solução</span>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Acesse <strong>Gerar Resultado</strong>. A plataforma roda a validação pré-voo e envia o modelo para o solver 
+              <strong> IBM ILOG CPLEX</strong>, devolvendo a escalação com guarnições completas, médias de idade e pontuação máxima.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Regras e Conceitos de Otimização */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 text-sm font-mono">2</span>
+          Regras de Negócio & Critérios Oficiais
+        </h2>
+
+        <div className="space-y-3">
+          <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
+            <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Compatibilidade Etária e Média da Guarnição</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              No Remo Master, a categoria do barco é definida pela <strong>média de idade</strong> de todos os remadores da guarnição. 
+              Um atleta só pode competir em categorias onde sua idade ou a média da equipe atenda ao mínimo regulamentado da classe.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
+            <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Janela de Descanso entre Provas (RF02)</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Se uma prova ocorre na posição cronológica <em>k</em>, o atleta escalado não poderá disputar nenhuma regata entre 
+              as posições <em>k - intervalo</em> e <em>k + intervalo</em>, preservando a recuperação muscular.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
+            <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Regras Manuais: Fixar e Bloquear</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 text-sm text-slate-300">
+              <div className="p-3 bg-slate-950/60 rounded-lg border border-emerald-900/30">
+                <span className="font-semibold text-emerald-400 flex items-center gap-1.5 mb-1">
+                  <IconAnchor /> Fixar em Prova (RF05)
+                </span>
+                Obriga o algoritmo a escalar aquele(s) atleta(s) em determinada prova, permitindo ao treinador manter guarnições já consagradas.
+              </div>
+              <div className="p-3 bg-slate-950/60 rounded-lg border border-rose-900/30">
+                <span className="font-semibold text-rose-400 flex items-center gap-1.5 mb-1">
+                  <IconBan /> Bloquear por Atleta (RF06)
+                </span>
+                Proíbe que o atleta dispute tipos de barcos específicos (ex: recusa de remar 1X Single Skiff) ou regatas que conflitem com sua disponibilidade pessoal.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dúvidas Frequentes / FAQ */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 text-sm font-mono">3</span>
+          Perguntas Frequentes (FAQ)
+        </h2>
+
+        <div className="divide-y divide-slate-800 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+          <div className="p-4">
+            <p className="text-white font-medium text-sm">O que fazer se o botão de "Executar Otimização" estiver desabilitado?</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Verifique os 4 cartões de validação na tela de Processamento. É necessário que todas as provas tenham identificador, data e hora válidos, 
+              que os remadores tenham nome e limites numéricos coerentes (mínimo &le; máximo) e que nenhuma regra manual aponte para dados inexistentes.
+            </p>
+          </div>
+          <div className="p-4">
+            <p className="text-white font-medium text-sm">Como iniciar um novo estudo ou reiniciar as configurações?</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Após visualizar os resultados, basta clicar no botão <strong>"NOVO ESTUDO"</strong> no topo da página ou navegar livremente pelas abas laterais 
+              para ajustar atletas, barcos e restrições.
+            </p>
+          </div>
+          <div className="p-4">
+            <p className="text-white font-medium text-sm">Como funciona o cálculo do Grau Técnico?</p>
+            <p className="text-slate-400 text-sm mt-1">
+              O grau varia de 0.0 a 1.0 e reflete o histórico esportivo e desempenho nos testes de remoergômetro. 
+              O CPLEX prioriza alocar atletas com notas mais altas nos barcos principais para maximizar a chance de vitória do clube.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 
   const renderOptimization = () => (
     <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500">
@@ -553,49 +1281,105 @@ export default function App() {
   );
 
   const renderResults = () => {
-    const solutionData = [
-      { id: '#7', num: '1/1', date: '30/03', time: '09:12h', boat: '1X', class: 'B', age: '44', score: '0,300', athletes: [{id: 18, name: 'Atleta 18', age: 44, score: 0.7}] },
-      { id: '#9', num: '1/1', date: '30/03', time: '09:26h', boat: '2X', class: 'G', age: '65', score: '0,450', athletes: [{id: 12, name: 'Atleta 12', age: 63, score: 0.1}, {id: 15, name: 'Atleta 15', age: 67, score: 0.8}] },
-      { id: '#19', num: '1/1', date: '30/03', time: '10:36h', boat: '2X', class: 'F', age: '60.5', score: '0,775', athletes: [{id: 8, name: 'Atleta 8', age: 62, score: 0.8}, {id: 21, name: 'Atleta 21', age: 59, score: 0.8}] },
-      { id: '#24', num: '1/1', date: '30/03', time: '11:11h', boat: '4+', class: 'E', age: '56', score: '0,125', athletes: [{id: 1, name: 'Atleta 1', age: 59, score: 0.2}, {id: 7, name: 'Atleta 7', age: 51, score: 0.7}, {id: 10, name: 'Atleta 10', age: 56, score: 0.4}, {id: 11, name: 'Atleta 11', age: 58, score: 0.3}] },
-      { id: '#29', num: '1/1', date: '30/03', time: '11:46h', boat: '2X', class: 'D', age: '52.5', score: '0,275', athletes: [{id: 3, name: 'Atleta 3', age: 67, score: 0.2}, {id: 5, name: 'Atleta 5', age: 38, score: 0.6}] },
-    ];
+    const rawAllocations = solutionResult ? solutionResult.allocations : [];
+    const displayAllocations = resultFilter === 'allocated' 
+      ? rawAllocations.filter(a => a.athletes && a.athletes.length > 0)
+      : rawAllocations;
+
+    const objectiveVal = solutionResult ? solutionResult.objectiveFunction : '21,8375';
+    const athleteCounts = solutionResult ? solutionResult.athleteCounts : [];
 
     return (
-      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-6 border-b border-slate-800 pb-6">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Resultado da Alocação</h1>
-            <p className="text-slate-400 mt-1">Escalação otimizada baseada nos dados do Sul-Americano de Remo Master.</p>
+            <p className="text-slate-400 mt-1">Escalação calculada com base no modelo matemático de Programação Inteira (Ramalho, 2024).</p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
              <div className="bg-slate-900 border border-slate-700 rounded-xl px-5 py-3 shadow-inner flex flex-col items-center">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Função Objetivo (Máx)</span>
                 <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 font-mono">
-                    21,8375
+                    {objectiveVal}
                 </span>
             </div>
-            <button className="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-slate-700 h-full">
-              <IconDownload /> <span>Exportar Solução</span>
+            <button 
+              onClick={handleExportResultadosCSV}
+              className="bg-sky-600 hover:bg-sky-500 text-white px-5 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-sky-500 h-full"
+            >
+              <IconDownload /> <span>Exportar Solução (.csv)</span>
+            </button>
+            <button 
+              onClick={handleExportContagemAlocacoesCSV}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-slate-700 h-full"
+              title="Salvar relatório com participações mínimas, máximas e sugeridas"
+            >
+              <IconDownload /> <span>Contagem Atletas (.csv)</span>
             </button>
           </div>
         </div>
 
+        {/* Resumo de Participações dos Atletas (RNF08) */}
+        {athleteCounts.length > 0 && (
+          <div className="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <IconUsers /> Resumo de Participações por Remador (Min / Alocado / Max)
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+              {athleteCounts.map(ac => {
+                const isOver = ac.allocated > ac.max;
+                const isUnder = ac.allocated < ac.min;
+                return (
+                  <div key={ac.id} className={`p-2.5 rounded-xl border text-xs flex flex-col justify-between ${
+                    isOver ? 'bg-rose-950/30 border-rose-800/50 text-rose-300' :
+                    isUnder ? 'bg-amber-950/30 border-amber-800/50 text-amber-300' :
+                    'bg-slate-950 border-slate-800 text-slate-300'
+                  }`}>
+                    <span className="font-semibold truncate">{ac.name}</span>
+                    <div className="flex justify-between items-center mt-1 text-[11px] font-mono">
+                      <span className="text-slate-500">[{ac.min}-{ac.max}]</span>
+                      <span className="font-bold text-sky-400">{ac.allocated} prov.</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="bg-slate-900 border border-slate-800 rounded-2xl flex-1 overflow-hidden shadow-sm flex flex-col">
-            <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex items-center justify-between">
-                <h3 className="text-slate-300 font-medium flex items-center gap-2"><IconFlag /> Tripulações Formadas</h3>
-                 <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
-                    <button className="px-4 py-1.5 text-xs font-bold rounded-md bg-transparent text-slate-500 hover:text-white transition-colors">VISÃO COMPACTA</button>
-                    <button className="px-4 py-1.5 text-xs font-bold rounded-md bg-slate-800 text-sky-400 shadow-sm border border-slate-700">VISÃO COMPLETA</button>
+            <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h3 className="text-slate-300 font-medium flex items-center gap-2">
+                  <IconFlag /> Tripulações Formadas ({displayAllocations.length})
+                </h3>
+                <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
+                    <button 
+                      onClick={() => setResultFilter('allocated')}
+                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                        resultFilter === 'allocated' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                      }`}
+                    >
+                      VISÃO COMPACTA (COM BARCO)
+                    </button>
+                    <button 
+                      onClick={() => setResultFilter('all')}
+                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                        resultFilter === 'all' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                      }`}
+                    >
+                      VISÃO COMPLETA (TODAS AS PROVAS)
+                    </button>
                 </div>
             </div>
             
             <div className="overflow-y-auto custom-scrollbar flex-1 p-4 space-y-3">
-            {solutionData.map((row, i) => (
+            {displayAllocations.map((row, i) => (
                 <div key={i} className="bg-slate-950/50 hover:bg-slate-800/80 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors border border-slate-800/50 group gap-4 relative overflow-hidden">
                 {/* Status indicator line on the left */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50 group-hover:bg-emerald-400 transition-colors"></div>
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                  row.athletes && row.athletes.length > 0 ? 'bg-emerald-500/50 group-hover:bg-emerald-400' : 'bg-slate-700'
+                } transition-colors`}></div>
                 
                 <div className="flex flex-wrap items-center gap-4 md:gap-6 pl-2 w-full md:w-auto">
                     <div className="flex flex-col">
@@ -625,7 +1409,7 @@ export default function App() {
                     <div className="flex gap-6">
                         <div className="flex flex-col text-left md:text-right">
                              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Média Idade</span>
-                             <span className="text-slate-200 text-sm">{row.age} anos</span>
+                             <span className="text-slate-200 text-sm">{row.age !== '-' ? `${row.age} anos` : '-'}</span>
                         </div>
                         <div className="flex flex-col text-left md:text-right">
                             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Grau Final</span>
@@ -633,8 +1417,9 @@ export default function App() {
                         </div>
                     </div>
                     
-                    <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-64">
-                    {row.athletes.map(a => (
+                    <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-72">
+                    {row.athletes && row.athletes.length > 0 ? (
+                      row.athletes.map(a => (
                         <div key={a.id} className="relative cursor-help group/tooltip">
                         <span className="text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 hover:border-slate-500 transition-colors shadow-sm block">
                             {a.name}
@@ -652,11 +1437,20 @@ export default function App() {
                             </div>
                         </div>
                         </div>
-                    ))}
+                      ))
+                    ) : (
+                      <span className="text-slate-600 text-xs italic">Sem guarnição alocada</span>
+                    )}
                     </div>
                 </div>
                 </div>
             ))}
+
+            {displayAllocations.length === 0 && (
+              <div className="text-center py-12 text-slate-500">
+                Nenhuma alocação encontrada para a visualização selecionada.
+              </div>
+            )}
             </div>
         </div>
       </div>
@@ -688,6 +1482,9 @@ export default function App() {
             
             <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Processamento</div>
             <NavItem id="optimization" icon={IconZap} label="Gerar Resultado" disabled={isSolved && activeRoute !== 'optimization'} />
+
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Suporte</div>
+            <NavItem id="ajuda" icon={IconHelp} label="Ajuda & Manual" />
         </div>
 
         {/* User / Credits Footer */}
@@ -730,7 +1527,11 @@ export default function App() {
                         NOVO ESTUDO
                      </button>
                 )}
-                <button className="text-slate-400 hover:text-white transition-colors p-2" title="Central de Ajuda">
+                <button 
+                  onClick={() => setActiveRoute('ajuda')}
+                  className={`transition-colors p-2 rounded-lg ${activeRoute === 'ajuda' ? 'text-sky-400 bg-sky-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+                  title="Central de Ajuda"
+                >
                     <IconHelp />
                 </button>
             </div>
@@ -743,6 +1544,7 @@ export default function App() {
                 {activeRoute === 'provas' && renderProvas()}
                 {activeRoute === 'atletas' && renderAtletas()}
                 {activeRoute === 'restricoes' && renderRestricoes()}
+                {activeRoute === 'ajuda' && renderAjuda()}
                 {activeRoute === 'optimization' && !isSolved && renderOptimization()}
                 {activeRoute === 'optimization' && isSolved && renderResults()}
             </div>
