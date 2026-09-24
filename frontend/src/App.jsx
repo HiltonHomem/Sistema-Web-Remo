@@ -19,6 +19,7 @@ const IconTrendingDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="20
 const IconHelp = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
 const IconCheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>;
+const IconCalculator = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>;
 
 // --- Tabelas Oficiais de Remo Master (Ramalho, 2024 / World Rowing) ---
 const AGE_CLASSES = {
@@ -1280,6 +1281,194 @@ export default function App() {
     </div>
   );
 
+  const renderCalculos = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-16">
+      {/* Cabeçalho */}
+      <div className="border-b border-slate-800 pb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <IconCalculator /> Formulação Matemática (Ramalho, 2024)
+        </div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Cálculos & Formulação do Sistema</h1>
+        <p className="text-slate-400 mt-2 text-base leading-relaxed">
+          Detalhamento analítico de todas as fórmulas, penalizações, restrições e da Função Objetivo calculadas pelo 
+          modelo de Programação Linear Inteira (PLI) implementado para o solver CPLEX.
+        </p>
+      </div>
+
+      {/* 1. Função Objetivo */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            1
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Função Objetivo (Maximização da Competitividade)</h2>
+            <p className="text-xs text-slate-400">Objetivo central do algoritmo: maximizar a soma dos graus de competitividade de todas as guarnições escaladas.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-center text-sm md:text-base text-emerald-400 overflow-x-auto">
+          {"Maximizar Z = ∑ ( j ∈ Provas ) ∑ ( k ∈ Barcos_j ) b_jk"}
+        </div>
+
+        <div className="text-sm text-slate-300 space-y-2 leading-relaxed">
+          <p>
+            Onde <strong className="text-white font-mono">b_jk</strong> representa a pontuação final (grau de competitividade) do barco <em className="text-sky-300">k</em> na prova <em className="text-sky-300">j</em>.
+            O algoritmo seleciona as tripulações de modo a obter o maior somatório global possível sem violar as restrições físicas, etárias e regulamentares.
+          </p>
+        </div>
+      </section>
+
+      {/* 2. Cálculo do Grau Individual com Penalização */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+            2
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Grau de Desempenho Ajustado por Idade (Penalização Etária)</h2>
+            <p className="text-xs text-slate-400">Equação (3.8) — Ajuste de rendimento físico conforme o atleta compete contra categorias de idade mais jovens.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-center text-sm md:text-base text-sky-400 overflow-x-auto">
+          {"g_ij = pgi - ( (ai - idade_min_classe_j) × penalidade )"}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <span className="font-bold text-sky-400 block mb-1">Componentes da Fórmula:</span>
+            <ul className="list-disc list-inside space-y-1 text-slate-400">
+              <li><strong className="text-slate-200 font-mono">pgi:</strong> Grau técnico base do atleta (0.00 a 1.00), obtido em testes de remoergômetro / histórico.</li>
+              <li><strong className="text-slate-200 font-mono">ai:</strong> Idade cronológica do atleta <em>i</em> no ano da regata.</li>
+              <li><strong className="text-slate-200 font-mono">idade_min_classe_j:</strong> Idade mínima exigida pela classe Master da prova <em>j</em> (ex: Classe B = 36 anos).</li>
+              <li><strong className="text-slate-200 font-mono">penalidade:</strong> Taxa de penalização configurada (padrão: 0.05 por ano de defasagem).</li>
+            </ul>
+          </div>
+          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <span className="font-bold text-emerald-400 block mb-1">Exemplo Prático:</span>
+            <p className="text-slate-400 leading-relaxed">
+              Atleta de <strong className="text-white">59 anos</strong> com índice técnico <strong className="text-white">0.80</strong> disputando prova de <strong className="text-white">Classe E (mín. 55 anos)</strong> com penalidade de <strong className="text-white">0.05</strong>:
+            </p>
+            <div className="mt-2 font-mono text-emerald-300 bg-slate-900 p-2 rounded text-center">
+              {"0.80 - ((59 - 55) × 0.05) = 0.80 - 0.20 = 0.600"}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Grau do Barco e Média de Idade */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm">
+            3
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Pontuação da Guarnição & Média Etária</h2>
+            <p className="text-xs text-slate-400">Equação (3.6) — Composição do barco e atendimento aos critérios da World Rowing.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+            <h3 className="font-semibold text-white text-sm mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Grau Final do Barco (b_jk)
+            </h3>
+            <div className="font-mono text-emerald-400 text-xs bg-slate-900 p-2.5 rounded-lg mb-2 text-center">
+              {"b_jk = ( ∑ g_ij ) / N_assentos"}
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              É a média aritmética dos graus ajustados de todos os remadores sentados no barco. Reflete a eficiência coletiva da guarnição.
+            </p>
+          </div>
+
+          <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+            <h3 className="font-semibold text-white text-sm mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400"></span> Média de Idade Obrigatória
+            </h3>
+            <div className="font-mono text-amber-300 text-xs bg-slate-900 p-2.5 rounded-lg mb-2 text-center">
+              {"( ∑ a_i ) / N_assentos ≥ idade_min_classe_j"}
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Para barcos múltiplos (2X, 4-, 4+, 8+), a média aritmética da idade dos remadores deve obrigatoriamente atingir ou superar a idade mínima da categoria da prova.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Restrições do Modelo */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
+            4
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Restrições Operacionais e Fisiológicas</h2>
+            <p className="text-xs text-slate-400">Equações (3.2) a (3.7) que garantem a viabilidade da escala.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Descanso Fisiológico (RF02 / Eq. 3.7)</span>
+              <span className="font-mono text-slate-500">|k - k'| &gt; η</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Se o atleta compete na prova de ordem cronológica <em>k</em>, fica impedido de ser alocado em qualquer prova no intervalo 
+              [<em>k - η</em>, <em>k + η</em>], garantindo recuperação física adequada.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Limites de Participação (Eq. 3.5)</span>
+              <span className="font-mono text-slate-500">min_i ≤ ∑ x_ijk ≤ max_i</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Cada remador possui um número mínimo de participações (para garantir que todos compitam) e um teto máximo para evitar fadiga extrema.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Proporção de Gênero (Eq. 3.2 e 3.3)</span>
+              <span className="font-mono text-slate-500">M, W ou 50% Misto</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Provas masculinas exigem 100% homens, femininas 100% mulheres, e provas Mistas exigem exatamente metade dos assentos de cada gênero.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Unicidade por Regata (Eq. 3.4)</span>
+              <span className="font-mono text-slate-500">∑ x_ijk ≤ 1</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Um atleta só pode remar em no máximo 1 barco de uma mesma prova, mesmo que a prova tenha múltiplos barcos do mesmo clube inscritos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Tabela de Classes Oficiais */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <IconClock /> Tabela Oficial de Classes Etárias (World Rowing Masters)
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
+          {Object.entries(AGE_CLASSES).map(([cls, age]) => (
+            <div key={cls} className="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+              <div className="font-black text-amber-400 text-sm">Classe {cls}</div>
+              <div className="text-slate-400 mt-0.5 font-mono">≥ {age} anos</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+
   const renderResults = () => {
     const rawAllocations = solutionResult ? solutionResult.allocations : [];
     const displayAllocations = resultFilter === 'allocated' 
@@ -1290,7 +1479,7 @@ export default function App() {
     const athleteCounts = solutionResult ? solutionResult.athleteCounts : [];
 
     return (
-      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
+      <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-6 border-b border-slate-800 pb-6">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Resultado da Alocação</h1>
@@ -1326,7 +1515,7 @@ export default function App() {
             <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
               <IconUsers /> Resumo de Participações por Remador (Min / Alocado / Max)
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1">
               {athleteCounts.map(ac => {
                 const isOver = ac.allocated > ac.max;
                 const isUnder = ac.allocated < ac.min;
@@ -1348,7 +1537,8 @@ export default function App() {
           </div>
         )}
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl flex-1 overflow-hidden shadow-sm flex flex-col">
+        {/* Lista de Tripulações com Rolagem Dedicada */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-sm flex flex-col">
             <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h3 className="text-slate-300 font-medium flex items-center gap-2">
                   <IconFlag /> Tripulações Formadas ({displayAllocations.length})
@@ -1373,7 +1563,7 @@ export default function App() {
                 </div>
             </div>
             
-            <div className="overflow-y-auto custom-scrollbar flex-1 p-4 space-y-3">
+            <div className="overflow-y-auto max-h-[600px] custom-scrollbar p-4 space-y-3">
             {displayAllocations.map((row, i) => (
                 <div key={i} className="bg-slate-950/50 hover:bg-slate-800/80 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors border border-slate-800/50 group gap-4 relative overflow-hidden">
                 {/* Status indicator line on the left */}
@@ -1485,6 +1675,7 @@ export default function App() {
 
             <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Suporte</div>
             <NavItem id="ajuda" icon={IconHelp} label="Ajuda & Manual" />
+            <NavItem id="calculos" icon={IconCalculator} label="Cálculos do Sistema" />
         </div>
 
         {/* User / Credits Footer */}
@@ -1545,6 +1736,7 @@ export default function App() {
                 {activeRoute === 'atletas' && renderAtletas()}
                 {activeRoute === 'restricoes' && renderRestricoes()}
                 {activeRoute === 'ajuda' && renderAjuda()}
+                {activeRoute === 'calculos' && renderCalculos()}
                 {activeRoute === 'optimization' && !isSolved && renderOptimization()}
                 {activeRoute === 'optimization' && isSolved && renderResults()}
             </div>
