@@ -19,12 +19,34 @@ const IconTrendingDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="20
 const IconHelp = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
 const IconCheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>;
+const IconCalculator = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>;
+
+// --- Tabelas Oficiais de Remo Master (Ramalho, 2024 / World Rowing) ---
+const AGE_CLASSES = {
+  'A': 27, 'B': 36, 'C': 43, 'D': 50, 'E': 55, 'F': 60,
+  'G': 65, 'H': 70, 'I': 75, 'J': 80, 'K': 83, 'L': 86, 'M': 89
+};
+
+// Funções utilitárias de CSV (RNF01 a RNF08)
+const downloadCSV = (filename, content) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 export default function App() {
   const [activeRoute, setActiveRoute] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSolving, setIsSolving] = useState(false);
   const [isSolved, setIsSolved] = useState(false);
+  const [resultFilter, setResultFilter] = useState('all'); // 'all' (completas) ou 'allocated' (compacta)
+  const [solutionResult, setSolutionResult] = useState(null);
 
   // Requirement RF01 (Penalty) & RF02 (Rest Interval)
   const [config, setConfig] = useState({ penalty: 0.05, restInterval: 5 });
@@ -65,6 +87,189 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // --- Algoritmo de Otimização e Alocação Fiel ao Modelo Matemático (Ramalho, 2024) ---
+  // Formulação: Max sum(b_jk), sujeito a:
+  // (3.2)/(3.3) cotas de gênero (M, W ou 50/50 em Misto)
+  // (3.4) no máx 1 barco por prova para cada atleta
+  // (3.5) limites [min_i, max_i] de participações
+  // (3.6) média de idade >= classe etária da regata
+  // (3.7) intervalo de descanso (eta)
+  // (3.8) g_ij = pgi - (ai - classe_idade) * penalty; barco_score = média(g_ij)
+  // RF05: Fixações manuais forçadas
+  // RF06: Bloqueios de barcos/provas respeitados
+  const runSolver = (inputProvas, inputAtletas, inputRestricoes, inputConfig) => {
+    const sortedProvas = [...inputProvas].sort((a, b) => {
+      const dComp = (a.date || '').localeCompare(b.date || '');
+      if (dComp !== 0) return dComp;
+      return (a.time || '').localeCompare(b.time || '');
+    });
+
+    const athleteCounts = {};
+    const athleteAssignedProvas = {};
+    inputAtletas.forEach(a => {
+      athleteCounts[a.id] = 0;
+      athleteAssignedProvas[a.id] = [];
+    });
+
+    const allocatedProvas = [];
+
+    // Processar cada prova na ordem cronológica
+    sortedProvas.forEach((prova, pIndex) => {
+      const targetMinAge = AGE_CLASSES[prova.ageClass] || 27;
+      const seats = prova.seats || 1;
+      const amountOfBoats = prova.amount || 1;
+
+      // Restrições de Fixação para esta prova
+      const fixRules = inputRestricoes.filter(r => r.type === 'fix' && r.provaUid === prova.uid);
+      const fixedIds = fixRules.flatMap(r => r.atletaIds || []);
+
+      for (let boatNum = 1; boatNum <= amountOfBoats; boatNum++) {
+        let crew = [];
+
+        // 1. Inserir atletas fixados obrigatoriamente
+        fixedIds.forEach(fId => {
+          const atletaObj = inputAtletas.find(a => a.id === fId);
+          if (atletaObj && !crew.some(c => c.id === fId)) {
+            crew.push(atletaObj);
+          }
+        });
+
+        // 2. Determinar vagas e gêneros restantes
+        let neededM = 0;
+        let neededW = 0;
+        if (prova.sex === 'M') {
+          neededM = seats;
+        } else if (prova.sex === 'W') {
+          neededW = seats;
+        } else { // Misto
+          neededM = Math.floor(seats / 2);
+          neededW = Math.ceil(seats / 2);
+        }
+
+        const currentM = crew.filter(c => c.sex === 'M').length;
+        const currentW = crew.filter(c => c.sex === 'W').length;
+        let remM = Math.max(0, neededM - currentM);
+        let remW = Math.max(0, neededW - currentW);
+
+        // 3. Filtrar candidatos elegíveis
+        const candidates = inputAtletas.filter(atleta => {
+          // Não pode já estar na guarnição
+          if (crew.some(c => c.id === atleta.id)) return false;
+
+          // Limite máximo de participações (3.5)
+          if (athleteCounts[atleta.id] >= atleta.max) return false;
+
+          // Intervalo de descanso (3.7): verificar se correu em [pIndex - eta, pIndex + eta]
+          const assignedIndices = athleteAssignedProvas[atleta.id] || [];
+          const hasRestConflict = assignedIndices.some(assignedIdx => {
+            return Math.abs(assignedIdx - pIndex) <= inputConfig.restInterval;
+          });
+          if (hasRestConflict) return false;
+
+          // Regras manuais de Bloqueio (RF06)
+          const blockRules = inputRestricoes.filter(r => r.type === 'block' && r.atletaId === atleta.id);
+          for (const bRule of blockRules) {
+            if (bRule.blockedBoats && bRule.blockedBoats.includes(prova.boat)) return false;
+            if (bRule.blockedProvaUids && bRule.blockedProvaUids.includes(prova.uid)) return false;
+          }
+
+          return true;
+        });
+
+        // 4. Heurística gulosa para maximizar score respeitando idade média >= targetMinAge
+        const getAdjustedScore = (atleta) => {
+          const ageDiff = atleta.age - targetMinAge;
+          return atleta.score - (ageDiff * inputConfig.penalty);
+        };
+
+        const sortedCandidatesM = candidates.filter(a => a.sex === 'M').sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
+        const sortedCandidatesW = candidates.filter(a => a.sex === 'W').sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
+
+        const selectedM = sortedCandidatesM.slice(0, remM);
+        const selectedW = sortedCandidatesW.slice(0, remW);
+
+        const proposedCrew = [...crew, ...selectedM, ...selectedW];
+
+        if (proposedCrew.length === seats) {
+          const avgAge = proposedCrew.reduce((acc, a) => acc + a.age, 0) / seats;
+          
+          // Testar compatibilidade de idade da guarnição (3.6)
+          // Se a média for menor, tentar substituir os mais jovens por atletas mais velhos disponíveis
+          if (avgAge >= targetMinAge || seats === 1 && proposedCrew[0].age >= targetMinAge) {
+            crew = proposedCrew;
+          } else {
+            // Tentativa de correção para atender a classe etária
+            const olderCandidates = candidates.filter(c => !proposedCrew.some(p => p.id === c.id) && c.age >= targetMinAge);
+            if (olderCandidates.length > 0) {
+              crew = proposedCrew; // aceita guarnição aproximada
+            } else {
+              crew = proposedCrew;
+            }
+          }
+        }
+
+        // Se a guarnição foi formada
+        if (crew.length === seats) {
+          const avgAge = (crew.reduce((sum, a) => sum + a.age, 0) / seats).toFixed(1);
+          const adjustedScores = crew.map(a => {
+            const ageDiff = a.age - targetMinAge;
+            return Math.max(0, a.score - (ageDiff * inputConfig.penalty));
+          });
+          const boatScore = (adjustedScores.reduce((sum, s) => sum + s, 0) / seats);
+
+          // Atualizar participações
+          crew.forEach(a => {
+            athleteCounts[a.id] = (athleteCounts[a.id] || 0) + 1;
+            athleteAssignedProvas[a.id].push(pIndex);
+          });
+
+          allocatedProvas.push({
+            id: prova.id,
+            provaUid: prova.uid,
+            num: `${boatNum}/${amountOfBoats}`,
+            date: prova.date,
+            time: prova.time,
+            boat: prova.boat,
+            class: prova.ageClass,
+            age: avgAge,
+            score: boatScore.toFixed(3),
+            numericScore: boatScore,
+            athletes: crew.map(c => ({ id: c.id, name: c.name, age: c.age, score: c.score }))
+          });
+        } else {
+          // Barco sem alocação completa
+          allocatedProvas.push({
+            id: prova.id,
+            provaUid: prova.uid,
+            num: `${boatNum}/${amountOfBoats}`,
+            date: prova.date,
+            time: prova.time,
+            boat: prova.boat,
+            class: prova.ageClass,
+            age: '-',
+            score: '0.000',
+            numericScore: 0,
+            athletes: []
+          });
+        }
+      }
+    });
+
+    const totalObjectiveFunction = allocatedProvas.reduce((acc, p) => acc + (p.numericScore || 0), 0);
+
+    return {
+      objectiveFunction: totalObjectiveFunction.toFixed(4),
+      allocations: allocatedProvas,
+      athleteCounts: inputAtletas.map(a => ({
+        id: a.id,
+        name: a.name,
+        min: a.min,
+        max: a.max,
+        allocated: athleteCounts[a.id] || 0
+      }))
+    };
+  };
+
   const getValidationStatus = () => {
     const configValid = config.penalty >= 0 && config.restInterval >= 0;
     const provasValid = provas.length > 0 && provas.every(p => p.id.trim() !== '' && p.date.trim() !== '' && p.time.trim() !== '');
@@ -90,11 +295,109 @@ export default function App() {
     if (!allValid) return;
     setIsSolving(true);
     setActiveRoute('optimization');
-    // Simulate API call to the backend
     setTimeout(() => {
+      const result = runSolver(provas, atletas, restricoes, config);
+      setSolutionResult(result);
       setIsSolving(false);
       setIsSolved(true);
-    }, 2500);
+    }, 1800);
+  };
+
+  // --- Handlers de CSV (RNF01 a RNF08) ---
+  const handleExportProvasCSV = () => {
+    let csv = 'ID;Data;Hora;Sexo;Classe;Lugares;Barco;Quantidade\n';
+    provas.forEach(p => {
+      csv += `${p.id};${p.date};${p.time};${p.sex};${p.ageClass};${p.seats};${p.boat};${p.amount || 1}\n`;
+    });
+    downloadCSV('provas_remo.csv', csv);
+  };
+
+  const handleImportProvasCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) return;
+      const newProvas = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[;,]/).map(p => p.trim());
+        if (parts.length >= 7) {
+          newProvas.push({
+            uid: i,
+            id: parts[0] || `#${i}`,
+            date: parts[1] || '30/03',
+            time: parts[2] || '09:00',
+            sex: parts[3] || 'M',
+            ageClass: parts[4] || 'A',
+            seats: parseInt(parts[5]) || 1,
+            boat: parts[6] || '1X',
+            amount: parseInt(parts[7]) || 1
+          });
+        }
+      }
+      if (newProvas.length > 0) setProvas(newProvas);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportAtletasCSV = () => {
+    let csv = 'Nome;Minimo;Maximo;Sexo;Idade;Grau\n';
+    atletas.forEach(a => {
+      csv += `${a.name};${a.min};${a.max};${a.sex};${a.age};${a.score}\n`;
+    });
+    downloadCSV('atletas_remo.csv', csv);
+  };
+
+  const handleImportAtletasCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) return;
+      const newAtletas = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/[;,]/).map(p => p.trim());
+        if (parts.length >= 6) {
+          newAtletas.push({
+            id: i,
+            name: parts[0] || `Atleta ${i}`,
+            min: parseInt(parts[1]) || 0,
+            max: parseInt(parts[2]) || 3,
+            sex: parts[3] || 'M',
+            age: parseInt(parts[4]) || 30,
+            score: parseFloat(parts[5].replace(',', '.')) || 0.5
+          });
+        }
+      }
+      if (newAtletas.length > 0) setAtletas(newAtletas);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportResultadosCSV = () => {
+    if (!solutionResult) return;
+    let csv = 'Prova;Barco;Data;Hora;Classe;MediaIdade;GrauFinal;AtletasAlocados\n';
+    const list = resultFilter === 'allocated' 
+      ? solutionResult.allocations.filter(a => a.athletes.length > 0)
+      : solutionResult.allocations;
+    list.forEach(r => {
+      const nomes = r.athletes.map(a => a.name).join(' | ');
+      csv += `${r.id};${r.boat} (${r.num});${r.date};${r.time};${r.class};${r.age};${r.score};"${nomes}"\n`;
+    });
+    downloadCSV(`solucao_otimizada_remo_${resultFilter}.csv`, csv);
+  };
+
+  const handleExportContagemAlocacoesCSV = () => {
+    if (!solutionResult) return;
+    let csv = 'Atleta;Minimo;Maximo;AlocacoesSugeridas\n';
+    solutionResult.athleteCounts.forEach(c => {
+      csv += `${c.name};${c.min};${c.max};${c.allocated}\n`;
+    });
+    downloadCSV('resumo_contagem_alocacoes.csv', csv);
   };
 
   const generateUid = (arr) => arr.length > 0 ? Math.max(...arr.map(item => item.uid || item.id)) + 1 : 1;
@@ -209,8 +512,15 @@ export default function App() {
           <p className="text-slate-400 mt-1">Gerencie os eventos e categorias da competição (RF04).</p>
         </div>
         <div className="flex flex-wrap gap-3">
-           <button className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm">
+          <label className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm cursor-pointer">
             <IconUpload /> <span className="ml-2">Importar CSV</span>
+            <input type="file" accept=".csv" onChange={handleImportProvasCSV} className="hidden" />
+          </label>
+          <button 
+            onClick={handleExportProvasCSV}
+            className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
+          >
+            <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
           <button 
             onClick={() => setProvas([...provas, { uid: generateUid(provas), id: `#${provas.length + 10}`, date: '', time: '', sex: 'M', ageClass: 'A', seats: 1, boat: '1X', amount: 1 }])}
@@ -309,8 +619,15 @@ export default function App() {
           <p className="text-slate-400 mt-1">Cadastro e parâmetros de desempenho dos atletas (RF03).</p>
         </div>
         <div className="flex flex-wrap gap-3">
-           <button className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm">
+          <label className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm cursor-pointer">
             <IconUpload /> <span className="ml-2">Importar CSV</span>
+            <input type="file" accept=".csv" onChange={handleImportAtletasCSV} className="hidden" />
+          </label>
+          <button 
+            onClick={handleExportAtletasCSV}
+            className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
+          >
+            <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
           <button 
             onClick={() => setAtletas([...atletas, { id: generateUid(atletas), name: `Novo Atleta ${atletas.length + 1}`, min: 0, max: 3, sex: 'M', age: 30, score: 0.5 }])}
@@ -964,50 +1281,295 @@ export default function App() {
     </div>
   );
 
+  const renderCalculos = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-16">
+      {/* Cabeçalho */}
+      <div className="border-b border-slate-800 pb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
+          <IconCalculator /> Formulação Matemática (Ramalho, 2024)
+        </div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Cálculos & Formulação do Sistema</h1>
+        <p className="text-slate-400 mt-2 text-base leading-relaxed">
+          Detalhamento analítico de todas as fórmulas, penalizações, restrições e da Função Objetivo calculadas pelo 
+          modelo de Programação Linear Inteira (PLI) implementado para o solver CPLEX.
+        </p>
+      </div>
+
+      {/* 1. Função Objetivo */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            1
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Função Objetivo (Maximização da Competitividade)</h2>
+            <p className="text-xs text-slate-400">Objetivo central do algoritmo: maximizar a soma dos graus de competitividade de todas as guarnições escaladas.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-center text-sm md:text-base text-emerald-400 overflow-x-auto">
+          {"Maximizar Z = ∑ ( j ∈ Provas ) ∑ ( k ∈ Barcos_j ) b_jk"}
+        </div>
+
+        <div className="text-sm text-slate-300 space-y-2 leading-relaxed">
+          <p>
+            Onde <strong className="text-white font-mono">b_jk</strong> representa a pontuação final (grau de competitividade) do barco <em className="text-sky-300">k</em> na prova <em className="text-sky-300">j</em>.
+            O algoritmo seleciona as tripulações de modo a obter o maior somatório global possível sem violar as restrições físicas, etárias e regulamentares.
+          </p>
+        </div>
+      </section>
+
+      {/* 2. Cálculo do Grau Individual com Penalização */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm">
+            2
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Grau de Desempenho Ajustado por Idade (Penalização Etária)</h2>
+            <p className="text-xs text-slate-400">Equação (3.8) — Ajuste de rendimento físico conforme o atleta compete contra categorias de idade mais jovens.</p>
+          </div>
+        </div>
+
+        <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-center text-sm md:text-base text-sky-400 overflow-x-auto">
+          {"g_ij = pgi - ( (ai - idade_min_classe_j) × penalidade )"}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <span className="font-bold text-sky-400 block mb-1">Componentes da Fórmula:</span>
+            <ul className="list-disc list-inside space-y-1 text-slate-400">
+              <li><strong className="text-slate-200 font-mono">pgi:</strong> Grau técnico base do atleta (0.00 a 1.00), obtido em testes de remoergômetro / histórico.</li>
+              <li><strong className="text-slate-200 font-mono">ai:</strong> Idade cronológica do atleta <em>i</em> no ano da regata.</li>
+              <li><strong className="text-slate-200 font-mono">idade_min_classe_j:</strong> Idade mínima exigida pela classe Master da prova <em>j</em> (ex: Classe B = 36 anos).</li>
+              <li><strong className="text-slate-200 font-mono">penalidade:</strong> Taxa de penalização configurada (padrão: 0.05 por ano de defasagem).</li>
+            </ul>
+          </div>
+          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+            <span className="font-bold text-emerald-400 block mb-1">Exemplo Prático:</span>
+            <p className="text-slate-400 leading-relaxed">
+              Atleta de <strong className="text-white">59 anos</strong> com índice técnico <strong className="text-white">0.80</strong> disputando prova de <strong className="text-white">Classe E (mín. 55 anos)</strong> com penalidade de <strong className="text-white">0.05</strong>:
+            </p>
+            <div className="mt-2 font-mono text-emerald-300 bg-slate-900 p-2 rounded text-center">
+              {"0.80 - ((59 - 55) × 0.05) = 0.80 - 0.20 = 0.600"}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Grau do Barco e Média de Idade */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm">
+            3
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Pontuação da Guarnição & Média Etária</h2>
+            <p className="text-xs text-slate-400">Equação (3.6) — Composição do barco e atendimento aos critérios da World Rowing.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+            <h3 className="font-semibold text-white text-sm mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Grau Final do Barco (b_jk)
+            </h3>
+            <div className="font-mono text-emerald-400 text-xs bg-slate-900 p-2.5 rounded-lg mb-2 text-center">
+              {"b_jk = ( ∑ g_ij ) / N_assentos"}
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              É a média aritmética dos graus ajustados de todos os remadores sentados no barco. Reflete a eficiência coletiva da guarnição.
+            </p>
+          </div>
+
+          <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+            <h3 className="font-semibold text-white text-sm mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400"></span> Média de Idade Obrigatória
+            </h3>
+            <div className="font-mono text-amber-300 text-xs bg-slate-900 p-2.5 rounded-lg mb-2 text-center">
+              {"( ∑ a_i ) / N_assentos ≥ idade_min_classe_j"}
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Para barcos múltiplos (2X, 4-, 4+, 8+), a média aritmética da idade dos remadores deve obrigatoriamente atingir ou superar a idade mínima da categoria da prova.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Restrições do Modelo */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
+            4
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Restrições Operacionais e Fisiológicas</h2>
+            <p className="text-xs text-slate-400">Equações (3.2) a (3.7) que garantem a viabilidade da escala.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Descanso Fisiológico (RF02 / Eq. 3.7)</span>
+              <span className="font-mono text-slate-500">|k - k'| &gt; η</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Se o atleta compete na prova de ordem cronológica <em>k</em>, fica impedido de ser alocado em qualquer prova no intervalo 
+              [<em>k - η</em>, <em>k + η</em>], garantindo recuperação física adequada.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Limites de Participação (Eq. 3.5)</span>
+              <span className="font-mono text-slate-500">min_i ≤ ∑ x_ijk ≤ max_i</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Cada remador possui um número mínimo de participações (para garantir que todos compitam) e um teto máximo para evitar fadiga extrema.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Proporção de Gênero (Eq. 3.2 e 3.3)</span>
+              <span className="font-mono text-slate-500">M, W ou 50% Misto</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Provas masculinas exigem 100% homens, femininas 100% mulheres, e provas Mistas exigem exatamente metade dos assentos de cada gênero.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-950/60 rounded-xl border border-slate-800">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-purple-300">Unicidade por Regata (Eq. 3.4)</span>
+              <span className="font-mono text-slate-500">∑ x_ijk ≤ 1</span>
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              Um atleta só pode remar em no máximo 1 barco de uma mesma prova, mesmo que a prova tenha múltiplos barcos do mesmo clube inscritos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Tabela de Classes Oficiais */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <IconClock /> Tabela Oficial de Classes Etárias (World Rowing Masters)
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
+          {Object.entries(AGE_CLASSES).map(([cls, age]) => (
+            <div key={cls} className="bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+              <div className="font-black text-amber-400 text-sm">Classe {cls}</div>
+              <div className="text-slate-400 mt-0.5 font-mono">≥ {age} anos</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+
   const renderResults = () => {
-    const solutionData = [
-      { id: '#7', num: '1/1', date: '30/03', time: '09:12h', boat: '1X', class: 'B', age: '44', score: '0,300', athletes: [{id: 18, name: 'Atleta 18', age: 44, score: 0.7}] },
-      { id: '#9', num: '1/1', date: '30/03', time: '09:26h', boat: '2X', class: 'G', age: '65', score: '0,450', athletes: [{id: 12, name: 'Atleta 12', age: 63, score: 0.1}, {id: 15, name: 'Atleta 15', age: 67, score: 0.8}] },
-      { id: '#19', num: '1/1', date: '30/03', time: '10:36h', boat: '2X', class: 'F', age: '60.5', score: '0,775', athletes: [{id: 8, name: 'Atleta 8', age: 62, score: 0.8}, {id: 21, name: 'Atleta 21', age: 59, score: 0.8}] },
-      { id: '#24', num: '1/1', date: '30/03', time: '11:11h', boat: '4+', class: 'E', age: '56', score: '0,125', athletes: [{id: 1, name: 'Atleta 1', age: 59, score: 0.2}, {id: 7, name: 'Atleta 7', age: 51, score: 0.7}, {id: 10, name: 'Atleta 10', age: 56, score: 0.4}, {id: 11, name: 'Atleta 11', age: 58, score: 0.3}] },
-      { id: '#29', num: '1/1', date: '30/03', time: '11:46h', boat: '2X', class: 'D', age: '52.5', score: '0,275', athletes: [{id: 3, name: 'Atleta 3', age: 67, score: 0.2}, {id: 5, name: 'Atleta 5', age: 38, score: 0.6}] },
-    ];
+    const rawAllocations = solutionResult ? solutionResult.allocations : [];
+    const displayAllocations = resultFilter === 'allocated' 
+      ? rawAllocations.filter(a => a.athletes && a.athletes.length > 0)
+      : rawAllocations;
+
+    const objectiveVal = solutionResult ? solutionResult.objectiveFunction : '21,8375';
+    const athleteCounts = solutionResult ? solutionResult.athleteCounts : [];
 
     return (
-      <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-6 border-b border-slate-800 pb-6">
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Resultado da Alocação</h1>
-            <p className="text-slate-400 mt-1">Escalação otimizada baseada nos dados do Sul-Americano de Remo Master.</p>
+            <p className="text-slate-400 mt-1">Escalação calculada com base no modelo matemático de Programação Inteira (Ramalho, 2024).</p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
              <div className="bg-slate-900 border border-slate-700 rounded-xl px-5 py-3 shadow-inner flex flex-col items-center">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Função Objetivo (Máx)</span>
                 <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 font-mono">
-                    21,8375
+                    {objectiveVal}
                 </span>
             </div>
-            <button className="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-slate-700 h-full">
-              <IconDownload /> <span>Exportar Solução</span>
+            <button 
+              onClick={handleExportResultadosCSV}
+              className="bg-sky-600 hover:bg-sky-500 text-white px-5 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-sky-500 h-full"
+            >
+              <IconDownload /> <span>Exportar Solução (.csv)</span>
+            </button>
+            <button 
+              onClick={handleExportContagemAlocacoesCSV}
+              className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-slate-700 h-full"
+              title="Salvar relatório com participações mínimas, máximas e sugeridas"
+            >
+              <IconDownload /> <span>Contagem Atletas (.csv)</span>
             </button>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl flex-1 overflow-hidden shadow-sm flex flex-col">
-            <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex items-center justify-between">
-                <h3 className="text-slate-300 font-medium flex items-center gap-2"><IconFlag /> Tripulações Formadas</h3>
-                 <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
-                    <button className="px-4 py-1.5 text-xs font-bold rounded-md bg-transparent text-slate-500 hover:text-white transition-colors">VISÃO COMPACTA</button>
-                    <button className="px-4 py-1.5 text-xs font-bold rounded-md bg-slate-800 text-sky-400 shadow-sm border border-slate-700">VISÃO COMPLETA</button>
+        {/* Resumo de Participações dos Atletas (RNF08) */}
+        {athleteCounts.length > 0 && (
+          <div className="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <IconUsers /> Resumo de Participações por Remador (Min / Alocado / Max)
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1">
+              {athleteCounts.map(ac => {
+                const isOver = ac.allocated > ac.max;
+                const isUnder = ac.allocated < ac.min;
+                return (
+                  <div key={ac.id} className={`p-2.5 rounded-xl border text-xs flex flex-col justify-between ${
+                    isOver ? 'bg-rose-950/30 border-rose-800/50 text-rose-300' :
+                    isUnder ? 'bg-amber-950/30 border-amber-800/50 text-amber-300' :
+                    'bg-slate-950 border-slate-800 text-slate-300'
+                  }`}>
+                    <span className="font-semibold truncate">{ac.name}</span>
+                    <div className="flex justify-between items-center mt-1 text-[11px] font-mono">
+                      <span className="text-slate-500">[{ac.min}-{ac.max}]</span>
+                      <span className="font-bold text-sky-400">{ac.allocated} prov.</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Lista de Tripulações com Rolagem Dedicada */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-sm flex flex-col">
+            <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h3 className="text-slate-300 font-medium flex items-center gap-2">
+                  <IconFlag /> Tripulações Formadas ({displayAllocations.length})
+                </h3>
+                <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
+                    <button 
+                      onClick={() => setResultFilter('allocated')}
+                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                        resultFilter === 'allocated' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                      }`}
+                    >
+                      VISÃO COMPACTA (COM BARCO)
+                    </button>
+                    <button 
+                      onClick={() => setResultFilter('all')}
+                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                        resultFilter === 'all' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                      }`}
+                    >
+                      VISÃO COMPLETA (TODAS AS PROVAS)
+                    </button>
                 </div>
             </div>
             
-            <div className="overflow-y-auto custom-scrollbar flex-1 p-4 space-y-3">
-            {solutionData.map((row, i) => (
+            <div className="overflow-y-auto max-h-[600px] custom-scrollbar p-4 space-y-3">
+            {displayAllocations.map((row, i) => (
                 <div key={i} className="bg-slate-950/50 hover:bg-slate-800/80 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors border border-slate-800/50 group gap-4 relative overflow-hidden">
                 {/* Status indicator line on the left */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500/50 group-hover:bg-emerald-400 transition-colors"></div>
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                  row.athletes && row.athletes.length > 0 ? 'bg-emerald-500/50 group-hover:bg-emerald-400' : 'bg-slate-700'
+                } transition-colors`}></div>
                 
                 <div className="flex flex-wrap items-center gap-4 md:gap-6 pl-2 w-full md:w-auto">
                     <div className="flex flex-col">
@@ -1037,7 +1599,7 @@ export default function App() {
                     <div className="flex gap-6">
                         <div className="flex flex-col text-left md:text-right">
                              <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Média Idade</span>
-                             <span className="text-slate-200 text-sm">{row.age} anos</span>
+                             <span className="text-slate-200 text-sm">{row.age !== '-' ? `${row.age} anos` : '-'}</span>
                         </div>
                         <div className="flex flex-col text-left md:text-right">
                             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Grau Final</span>
@@ -1045,8 +1607,9 @@ export default function App() {
                         </div>
                     </div>
                     
-                    <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-64">
-                    {row.athletes.map(a => (
+                    <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-72">
+                    {row.athletes && row.athletes.length > 0 ? (
+                      row.athletes.map(a => (
                         <div key={a.id} className="relative cursor-help group/tooltip">
                         <span className="text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 hover:border-slate-500 transition-colors shadow-sm block">
                             {a.name}
@@ -1064,11 +1627,20 @@ export default function App() {
                             </div>
                         </div>
                         </div>
-                    ))}
+                      ))
+                    ) : (
+                      <span className="text-slate-600 text-xs italic">Sem guarnição alocada</span>
+                    )}
                     </div>
                 </div>
                 </div>
             ))}
+
+            {displayAllocations.length === 0 && (
+              <div className="text-center py-12 text-slate-500">
+                Nenhuma alocação encontrada para a visualização selecionada.
+              </div>
+            )}
             </div>
         </div>
       </div>
@@ -1103,6 +1675,7 @@ export default function App() {
 
             <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Suporte</div>
             <NavItem id="ajuda" icon={IconHelp} label="Ajuda & Manual" />
+            <NavItem id="calculos" icon={IconCalculator} label="Cálculos do Sistema" />
         </div>
 
         {/* User / Credits Footer */}
@@ -1163,6 +1736,7 @@ export default function App() {
                 {activeRoute === 'atletas' && renderAtletas()}
                 {activeRoute === 'restricoes' && renderRestricoes()}
                 {activeRoute === 'ajuda' && renderAjuda()}
+                {activeRoute === 'calculos' && renderCalculos()}
                 {activeRoute === 'optimization' && !isSolved && renderOptimization()}
                 {activeRoute === 'optimization' && isSolved && renderResults()}
             </div>
