@@ -19,7 +19,7 @@ const IconTrendingDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="20
 const IconHelp = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>;
 const IconCheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>;
 const IconXCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>;
-const IconCalculator = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>;
+const IconCalculator = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="16" y1="14" x2="16" y2="18" /><path d="M16 10h.01" /><path d="M12 10h.01" /><path d="M8 10h.01" /><path d="M12 14h.01" /><path d="M8 14h.01" /><path d="M12 18h.01" /><path d="M8 18h.01" /></svg>;
 
 // --- Tabelas Oficiais de Remo Master (Ramalho, 2024 / World Rowing) ---
 const AGE_CLASSES = {
@@ -176,7 +176,7 @@ export default function App() {
           return true;
         });
 
-        // 4. Heurística gulosa para maximizar score respeitando idade média >= targetMinAge
+        // 4. Heurística para maximizar score respeitando idade média >= targetMinAge
         const getAdjustedScore = (atleta) => {
           const ageDiff = atleta.age - targetMinAge;
           return atleta.score - (ageDiff * inputConfig.penalty);
@@ -192,7 +192,7 @@ export default function App() {
 
         if (proposedCrew.length === seats) {
           const avgAge = proposedCrew.reduce((acc, a) => acc + a.age, 0) / seats;
-          
+
           // Testar compatibilidade de idade da guarnição (3.6)
           // Se a média for menor, tentar substituir os mais jovens por atletas mais velhos disponíveis
           if (avgAge >= targetMinAge || seats === 1 && proposedCrew[0].age >= targetMinAge) {
@@ -381,7 +381,7 @@ export default function App() {
   const handleExportResultadosCSV = () => {
     if (!solutionResult) return;
     let csv = 'Prova;Barco;Data;Hora;Classe;MediaIdade;GrauFinal;AtletasAlocados\n';
-    const list = resultFilter === 'allocated' 
+    const list = resultFilter === 'allocated'
       ? solutionResult.allocations.filter(a => a.athletes.length > 0)
       : solutionResult.allocations;
     list.forEach(r => {
@@ -406,16 +406,15 @@ export default function App() {
     <button
       onClick={() => {
         if (!disabled && !isSolving) {
-            setActiveRoute(id);
-            if(window.innerWidth < 1024) setIsSidebarOpen(false);
+          setActiveRoute(id);
+          if (window.innerWidth < 1024) setIsSidebarOpen(false);
         }
       }}
       disabled={disabled || isSolving}
-      className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
-        activeRoute === id
+      className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${activeRoute === id
           ? 'bg-sky-500/10 text-sky-400'
           : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-      } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+        } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <Icon />
       <span>{label}</span>
@@ -435,25 +434,25 @@ export default function App() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <IconFlag />
-            </div>
-            <h3 className="text-slate-400 text-sm font-medium">Provas (Regatas) Cadastradas</h3>
-            <p className="text-4xl font-bold text-white mt-2">{provas.length}</p>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <IconFlag />
+          </div>
+          <h3 className="text-slate-400 text-sm font-medium">Provas (Regatas) Cadastradas</h3>
+          <p className="text-4xl font-bold text-white mt-2">{provas.length}</p>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <IconUsers />
-            </div>
-            <h3 className="text-slate-400 text-sm font-medium">Remadores Inscritos</h3>
-            <p className="text-4xl font-bold text-white mt-2">{atletas.length}</p>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <IconUsers />
+          </div>
+          <h3 className="text-slate-400 text-sm font-medium">Remadores Inscritos</h3>
+          <p className="text-4xl font-bold text-white mt-2">{atletas.length}</p>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <IconLock />
-            </div>
-            <h3 className="text-slate-400 text-sm font-medium">Restrições (Fixos/Bloqueados)</h3>
-            <p className="text-4xl font-bold text-white mt-2">{restricoes.length}</p>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <IconLock />
+          </div>
+          <h3 className="text-slate-400 text-sm font-medium">Restrições (Fixos/Bloqueados)</h3>
+          <p className="text-4xl font-bold text-white mt-2">{restricoes.length}</p>
         </div>
       </div>
 
@@ -462,43 +461,43 @@ export default function App() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Rest Interval */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-start gap-4 hover:border-slate-700 transition-colors">
-            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                <IconClock />
+          <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
+            <IconClock />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-medium">Intervalo de Descanso</h3>
+            <p className="text-slate-400 text-sm mt-1 mb-4 leading-relaxed">
+              Número mínimo de regatas que um remador deve descansar antes de competir novamente (RF02).
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="number" min="0" value={config.restInterval}
+                onChange={(e) => setConfig({ ...config, restInterval: parseInt(e.target.value) || 0 })}
+                className="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 w-24 text-center font-mono text-lg transition-all"
+              />
+              <span className="text-slate-500 font-medium">provas</span>
             </div>
-            <div className="flex-1">
-                <h3 className="text-white font-medium">Intervalo de Descanso</h3>
-                <p className="text-slate-400 text-sm mt-1 mb-4 leading-relaxed">
-                    Número mínimo de regatas que um remador deve descansar antes de competir novamente (RF02).
-                </p>
-                <div className="flex items-center gap-3">
-                    <input 
-                        type="number" min="0" value={config.restInterval} 
-                        onChange={(e) => setConfig({...config, restInterval: parseInt(e.target.value) || 0})}
-                        className="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 w-24 text-center font-mono text-lg transition-all"
-                    />
-                    <span className="text-slate-500 font-medium">provas</span>
-                </div>
-            </div>
+          </div>
         </div>
 
         {/* Penalty */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex items-start gap-4 hover:border-slate-700 transition-colors">
-            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
-                <IconTrendingDown />
+          <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl">
+            <IconTrendingDown />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-white font-medium">Penalização Etária (Peso)</h3>
+            <p className="text-slate-400 text-sm mt-1 mb-4 leading-relaxed">
+              Fator de redução aplicado ao grau de desempenho por ano de diferença da categoria da prova (RF01).
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="number" step="0.01" min="0" value={config.penalty}
+                onChange={(e) => setConfig({ ...config, penalty: parseFloat(e.target.value) || 0 })}
+                className="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 w-32 font-mono text-lg transition-all"
+              />
             </div>
-            <div className="flex-1">
-                <h3 className="text-white font-medium">Penalização Etária (Peso)</h3>
-                <p className="text-slate-400 text-sm mt-1 mb-4 leading-relaxed">
-                    Fator de redução aplicado ao grau de desempenho por ano de diferença da categoria da prova (RF01).
-                </p>
-                 <div className="flex items-center gap-3">
-                    <input 
-                        type="number" step="0.01" min="0" value={config.penalty} 
-                        onChange={(e) => setConfig({...config, penalty: parseFloat(e.target.value) || 0})}
-                        className="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 w-32 font-mono text-lg transition-all"
-                    />
-                </div>
-            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -516,13 +515,13 @@ export default function App() {
             <IconUpload /> <span className="ml-2">Importar CSV</span>
             <input type="file" accept=".csv" onChange={handleImportProvasCSV} className="hidden" />
           </label>
-          <button 
+          <button
             onClick={handleExportProvasCSV}
             className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
           >
             <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
-          <button 
+          <button
             onClick={() => setProvas([...provas, { uid: generateUid(provas), id: `#${provas.length + 10}`, date: '', time: '', sex: 'M', ageClass: 'A', seats: 1, boat: '1X', amount: 1 }])}
             className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20"
           >
@@ -551,15 +550,15 @@ export default function App() {
               {provas.map((prova, idx) => (
                 <tr key={prova.uid} className="hover:bg-slate-800/30 transition-colors group">
                   <td className="px-6 py-3">
-                    <input type="text" value={prova.id} onChange={(e) => { const newP = [...provas]; newP[idx].id = e.target.value; setProvas(newP); }} 
+                    <input type="text" value={prova.id} onChange={(e) => { const newP = [...provas]; newP[idx].id = e.target.value; setProvas(newP); }}
                       className={`w-24 bg-slate-950 border ${prova.id.trim() === '' ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none transition-all font-mono`} />
                   </td>
                   <td className="px-6 py-3">
-                    <input type="text" value={prova.date} onChange={(e) => { const newP = [...provas]; newP[idx].date = e.target.value; setProvas(newP); }} 
+                    <input type="text" value={prova.date} onChange={(e) => { const newP = [...provas]; newP[idx].date = e.target.value; setProvas(newP); }}
                       className={`w-20 bg-slate-950 border ${prova.date.trim() === '' ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} placeholder="dd/mm" />
                   </td>
                   <td className="px-6 py-3">
-                    <input type="text" value={prova.time} onChange={(e) => { const newP = [...provas]; newP[idx].time = e.target.value; setProvas(newP); }} 
+                    <input type="text" value={prova.time} onChange={(e) => { const newP = [...provas]; newP[idx].time = e.target.value; setProvas(newP); }}
                       className={`w-20 bg-slate-950 border ${prova.time.trim() === '' ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} placeholder="hh:mm" />
                   </td>
                   <td className="px-6 py-3">
@@ -569,21 +568,21 @@ export default function App() {
                   </td>
                   <td className="px-6 py-3 text-center">
                     <select value={prova.ageClass} onChange={(e) => { const newP = [...provas]; newP[idx].ageClass = e.target.value; setProvas(newP); }} className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center cursor-pointer appearance-none">
-                      {['A','B','C','D','E','F','G','H','I','J','K','L','M'].map(c => <option key={c} value={c}>{c}</option>)}
+                      {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'].map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </td>
                   <td className="px-6 py-3 text-center">
                     <select value={prova.seats} onChange={(e) => { const newP = [...provas]; newP[idx].seats = parseInt(e.target.value); setProvas(newP); }} className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center cursor-pointer appearance-none">
-                      {[1,2,4,8].map(s => <option key={s} value={s}>{s}</option>)}
+                      {[1, 2, 4, 8].map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
                   <td className="px-6 py-3 text-center">
-                     <select value={prova.boat} onChange={(e) => { const newP = [...provas]; newP[idx].boat = e.target.value; setProvas(newP); }} className="w-20 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center font-bold cursor-pointer appearance-none">
-                      {['1X','2X','2-','4X','4-','4+','8+'].map(b => <option key={b} value={b}>{b}</option>)}
+                    <select value={prova.boat} onChange={(e) => { const newP = [...provas]; newP[idx].boat = e.target.value; setProvas(newP); }} className="w-20 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center font-bold cursor-pointer appearance-none">
+                      {['1X', '2X', '2-', '4X', '4-', '4+', '8+'].map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <input type="number" min="1" value={prova.amount} onChange={(e) => { const newP = [...provas]; newP[idx].amount = parseInt(e.target.value) || 1; setProvas(newP); }} 
+                    <input type="number" min="1" value={prova.amount} onChange={(e) => { const newP = [...provas]; newP[idx].amount = parseInt(e.target.value) || 1; setProvas(newP); }}
                       className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all" />
                   </td>
                   <td className="px-6 py-3 text-right">
@@ -597,9 +596,9 @@ export default function App() {
                 <tr>
                   <td colSpan="9" className="text-center py-16 text-slate-500">
                     <div className="flex flex-col items-center justify-center">
-                        <IconFlag className="w-12 h-12 mb-3 text-slate-700" />
-                        <p>Nenhuma prova cadastrada no sistema.</p>
-                        <p className="text-sm mt-1">Importe um CSV ou adicione manualmente.</p>
+                      <IconFlag className="w-12 h-12 mb-3 text-slate-700" />
+                      <p>Nenhuma prova cadastrada no sistema.</p>
+                      <p className="text-sm mt-1">Importe um CSV ou adicione manualmente.</p>
                     </div>
                   </td>
                 </tr>
@@ -615,7 +614,7 @@ export default function App() {
     <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Plantel de Remadores</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Quadro de Atletas</h1>
           <p className="text-slate-400 mt-1">Cadastro e parâmetros de desempenho dos atletas (RF03).</p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -623,15 +622,15 @@ export default function App() {
             <IconUpload /> <span className="ml-2">Importar CSV</span>
             <input type="file" accept=".csv" onChange={handleImportAtletasCSV} className="hidden" />
           </label>
-          <button 
+          <button
             onClick={handleExportAtletasCSV}
             className="bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-sm"
           >
             <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
-          <button 
+          <button
             onClick={() => setAtletas([...atletas, { id: generateUid(atletas), name: `Novo Atleta ${atletas.length + 1}`, min: 0, max: 3, sex: 'M', age: 30, score: 0.5 }])}
-             className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20"
+            className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20"
           >
             <IconPlus /> <span className="ml-2">Adicionar Atleta</span>
           </button>
@@ -657,19 +656,19 @@ export default function App() {
                 <tr key={atleta.id} className="hover:bg-slate-800/30 transition-colors group">
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400 border border-slate-700">
-                            {atleta.name.charAt(0).toUpperCase()}
-                        </div>
-                        <input type="text" value={atleta.name} onChange={(e) => { const newA = [...atletas]; newA[idx].name = e.target.value; setAtletas(newA); }} 
+                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400 border border-slate-700">
+                        {atleta.name.charAt(0).toUpperCase()}
+                      </div>
+                      <input type="text" value={atleta.name} onChange={(e) => { const newA = [...atletas]; newA[idx].name = e.target.value; setAtletas(newA); }}
                         className={`w-full max-w-xs bg-slate-950 border ${atleta.name.trim() === '' ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none transition-all`} />
                     </div>
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <input type="number" min="0" value={atleta.min} onChange={(e) => { const newA = [...atletas]; newA[idx].min = parseInt(e.target.value)||0; setAtletas(newA); }} 
+                    <input type="number" min="0" value={atleta.min} onChange={(e) => { const newA = [...atletas]; newA[idx].min = parseInt(e.target.value) || 0; setAtletas(newA); }}
                       className={`w-16 bg-slate-950 border ${atleta.min > atleta.max ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} />
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <input type="number" min="0" value={atleta.max} onChange={(e) => { const newA = [...atletas]; newA[idx].max = parseInt(e.target.value)||0; setAtletas(newA); }} 
+                    <input type="number" min="0" value={atleta.max} onChange={(e) => { const newA = [...atletas]; newA[idx].max = parseInt(e.target.value) || 0; setAtletas(newA); }}
                       className={`w-16 bg-slate-950 border ${atleta.min > atleta.max ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} />
                   </td>
                   <td className="px-6 py-3 text-center">
@@ -678,11 +677,11 @@ export default function App() {
                     </select>
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <input type="number" min="27" value={atleta.age} onChange={(e) => { const newA = [...atletas]; newA[idx].age = parseInt(e.target.value)||27; setAtletas(newA); }} 
+                    <input type="number" min="27" value={atleta.age} onChange={(e) => { const newA = [...atletas]; newA[idx].age = parseInt(e.target.value) || 27; setAtletas(newA); }}
                       className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all" />
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <input type="number" step="0.05" min="0" max="1" value={atleta.score} onChange={(e) => { const newA = [...atletas]; newA[idx].score = parseFloat(e.target.value)||0; setAtletas(newA); }} 
+                    <input type="number" step="0.05" min="0" max="1" value={atleta.score} onChange={(e) => { const newA = [...atletas]; newA[idx].score = parseFloat(e.target.value) || 0; setAtletas(newA); }}
                       className="w-20 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all font-mono text-emerald-400" />
                   </td>
                   <td className="px-6 py-3 text-right">
@@ -692,12 +691,12 @@ export default function App() {
                   </td>
                 </tr>
               ))}
-               {atletas.length === 0 && (
+              {atletas.length === 0 && (
                 <tr>
                   <td colSpan="7" className="text-center py-16 text-slate-500">
-                     <div className="flex flex-col items-center justify-center">
-                        <IconUsers className="w-12 h-12 mb-3 text-slate-700" />
-                        <p>Nenhum remador cadastrado.</p>
+                    <div className="flex flex-col items-center justify-center">
+                      <IconUsers className="w-12 h-12 mb-3 text-slate-700" />
+                      <p>Nenhum remador cadastrado.</p>
                     </div>
                   </td>
                 </tr>
@@ -722,16 +721,16 @@ export default function App() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
-            <button 
+            <button
               onClick={() => setRestricoes([
-                ...restricoes, 
-                { 
-                  uid: generateUid(restricoes), 
-                  type: 'block', 
-                  atletaId: atletas[0]?.id || '', 
-                  blockedBoats: [], 
-                  blockedProvaUids: [], 
-                  error: null 
+                ...restricoes,
+                {
+                  uid: generateUid(restricoes),
+                  type: 'block',
+                  atletaId: atletas[0]?.id || '',
+                  blockedBoats: [],
+                  blockedProvaUids: [],
+                  error: null
                 }
               ])}
               className="bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 px-4 py-2 rounded-xl flex items-center text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -739,15 +738,15 @@ export default function App() {
             >
               <IconBan /> <span className="ml-2 font-semibold">+ Bloquear Atleta</span>
             </button>
-            <button 
+            <button
               onClick={() => setRestricoes([
-                ...restricoes, 
-                { 
-                  uid: generateUid(restricoes), 
-                  type: 'fix', 
-                  provaUid: provas[0]?.uid || '', 
-                  atletaIds: atletas[0] ? [atletas[0].id] : [], 
-                  error: null 
+                ...restricoes,
+                {
+                  uid: generateUid(restricoes),
+                  type: 'fix',
+                  provaUid: provas[0]?.uid || '',
+                  atletaIds: atletas[0] ? [atletas[0].id] : [],
+                  error: null
                 }
               ])}
               className="bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-4 py-2 rounded-xl flex items-center text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -784,8 +783,8 @@ export default function App() {
               };
 
               return (
-                <div 
-                  key={restricao.uid} 
+                <div
+                  key={restricao.uid}
                   className="bg-slate-900 p-5 rounded-2xl border border-rose-900/30 shadow-sm relative group hover:border-rose-700/50 transition-colors"
                 >
                   {/* Top Bar: Badge, Atleta Selector and Delete */}
@@ -801,7 +800,7 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2 flex-1 sm:flex-initial">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Atleta:</label>
-                        <select 
+                        <select
                           value={restricao.atletaId}
                           onChange={(e) => {
                             const newR = [...restricoes];
@@ -817,8 +816,8 @@ export default function App() {
                         </select>
                       </div>
 
-                      <button 
-                        onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))} 
+                      <button
+                        onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))}
                         className="text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg transition-colors ml-auto"
                         title="Remover bloqueio"
                       >
@@ -847,11 +846,10 @@ export default function App() {
                               key={boat}
                               type="button"
                               onClick={() => toggleBoat(boat)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                                isBlocked 
-                                  ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40 ring-1 ring-rose-400' 
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isBlocked
+                                  ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40 ring-1 ring-rose-400'
                                   : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
-                              }`}
+                                }`}
                             >
                               <span>{boat}</span>
                               {isBlocked ? <span className="text-[10px]">✕</span> : <span className="text-[10px] text-slate-600">+</span>}
@@ -878,14 +876,13 @@ export default function App() {
                         {provas.map(p => {
                           const isBlocked = blockedProvaUids.includes(p.uid);
                           return (
-                            <div 
+                            <div
                               key={p.uid}
                               onClick={() => toggleProva(p.uid)}
-                              className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors border ${
-                                isBlocked 
-                                  ? 'bg-rose-950/40 border-rose-600/60 text-rose-200' 
+                              className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors border ${isBlocked
+                                  ? 'bg-rose-950/40 border-rose-600/60 text-rose-200'
                                   : 'bg-slate-900/60 border-slate-800/60 text-slate-300 hover:bg-slate-800'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2">
                                 <span className="font-mono font-bold text-sky-400">{p.id}</span>
@@ -893,10 +890,10 @@ export default function App() {
                                 <span className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300 font-semibold">{p.boat}</span>
                                 <span className="text-slate-500 text-[10px]">Classe {p.ageClass}</span>
                               </div>
-                              <input 
-                                type="checkbox" 
-                                checked={isBlocked} 
-                                onChange={() => {}} // Controlled via div onClick
+                              <input
+                                type="checkbox"
+                                checked={isBlocked}
+                                onChange={() => { }} // Controlled via div onClick
                                 className="accent-rose-500 rounded cursor-pointer"
                               />
                             </div>
@@ -936,8 +933,8 @@ export default function App() {
             };
 
             return (
-              <div 
-                key={restricao.uid} 
+              <div
+                key={restricao.uid}
                 className="bg-slate-900 p-5 rounded-2xl border border-emerald-900/30 shadow-sm relative group hover:border-emerald-700/50 transition-colors"
               >
                 {/* Top Bar: Badge, Prova Selector and Delete */}
@@ -953,7 +950,7 @@ export default function App() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 flex-1 sm:flex-initial">
                       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">Prova Alvo:</label>
-                      <select 
+                      <select
                         value={restricao.provaUid}
                         onChange={(e) => {
                           const newR = [...restricoes];
@@ -969,8 +966,8 @@ export default function App() {
                       </select>
                     </div>
 
-                    <button 
-                      onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))} 
+                    <button
+                      onClick={() => setRestricoes(restricoes.filter(r => r.uid !== restricao.uid))}
                       className="text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 p-2 rounded-lg transition-colors ml-auto"
                       title="Remover fixação"
                     >
@@ -997,24 +994,22 @@ export default function App() {
                         <div
                           key={a.id}
                           onClick={() => toggleAtletaFix(a.id)}
-                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
-                            isFixed
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${isFixed
                               ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-200 shadow-sm'
                               : 'bg-slate-950/50 border-slate-800/70 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-2 truncate">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                              isFixed ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
-                            }`}>
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${isFixed ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                              }`}>
                               {a.name.charAt(0).toUpperCase()}
                             </div>
                             <span className="truncate font-medium">{a.name}</span>
                           </div>
-                          <input 
-                            type="checkbox" 
-                            checked={isFixed} 
-                            onChange={() => {}} // Controlled via parent
+                          <input
+                            type="checkbox"
+                            checked={isFixed}
+                            onChange={() => { }} // Controlled via parent
                             className="accent-emerald-500 rounded cursor-pointer ml-1.5"
                           />
                         </div>
@@ -1034,7 +1029,7 @@ export default function App() {
                 <div className="mt-3 pt-2.5 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
                   <div>
                     Prova <strong className="text-sky-400 font-mono">{targetProva?.id || ''}</strong> terá a participação obrigatória de: {
-                      currentAtletaIds.length > 0 
+                      currentAtletaIds.length > 0
                         ? currentAtletaIds.map(id => atletas.find(a => a.id === id)?.name).filter(Boolean).join(', ')
                         : 'Nenhum atleta selecionado ainda'
                     }.
@@ -1073,7 +1068,7 @@ export default function App() {
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">Manual & Fluxo de Operação</h1>
         <p className="text-slate-400 mt-2 text-base leading-relaxed">
-          Esta plataforma foi desenvolvida para otimizar matematicamente a escalação de remadores em regatas master, 
+          Esta plataforma foi desenvolvida para otimizar matematicamente a escalação de remadores em regatas master,
           maximizando o índice de competitividade das guarnições e respeitando todas as regras fisiológicas e de categoria.
         </p>
       </div>
@@ -1092,7 +1087,7 @@ export default function App() {
               <span>1. Configurar Parâmetros (Dashboard)</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Defina o <strong>Intervalo de Descanso</strong> (mínimo de regatas entre participações de um mesmo atleta para evitar exaustão) 
+              Defina o <strong>Intervalo de Descanso</strong> (mínimo de regatas entre participações de um mesmo atleta para evitar exaustão)
               e a <strong>Penalização Etária</strong> (peso de desvalorização aplicado a remadores mais velhos que competem em classes mais jovens).
             </p>
           </div>
@@ -1103,7 +1098,7 @@ export default function App() {
               <span>2. Cadastrar Grade de Provas</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Insira a sequência das regatas com data, hora, gênero (M, W ou Misto), classe de idade oficial (A até M), 
+              Insira a sequência das regatas com data, hora, gênero (M, W ou Misto), classe de idade oficial (A até M),
               número de assentos e tipo de embarcação (ex: 1X, 2X, 4-, 4+, 8+).
             </p>
           </div>
@@ -1114,7 +1109,7 @@ export default function App() {
               <span>3. Cadastrar Atletas & Restrições</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Informe a idade de cada remador, gênero, índice técnico estimado (0.0 a 1.0) e limites min/max de provas. 
+              Informe a idade de cada remador, gênero, índice técnico estimado (0.0 a 1.0) e limites min/max de provas.
               Na aba de <strong>Regras Manuais</strong>, você pode travar atletas em barcos específicos ou bloquear tipos de barcos/provas para remadores.
             </p>
           </div>
@@ -1125,7 +1120,7 @@ export default function App() {
               <span>4. Executar e Avaliar Solução</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Acesse <strong>Gerar Resultado</strong>. A plataforma roda a validação pré-voo e envia o modelo para o solver 
+              Acesse <strong>Gerar Resultado</strong>. A plataforma roda a validação prévia e envia o modelo para o solver
               <strong> IBM ILOG CPLEX</strong>, devolvendo a escalação com guarnições completas, médias de idade e pontuação máxima.
             </p>
           </div>
@@ -1143,7 +1138,7 @@ export default function App() {
           <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
             <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Compatibilidade Etária e Média da Guarnição</h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              No Remo Master, a categoria do barco é definida pela <strong>média de idade</strong> de todos os remadores da guarnição. 
+              No Remo Master, a categoria do barco é definida pela <strong>média de idade</strong> de todos os remadores da guarnição.
               Um atleta só pode competir em categorias onde sua idade ou a média da equipe atenda ao mínimo regulamentado da classe.
             </p>
           </div>
@@ -1151,7 +1146,7 @@ export default function App() {
           <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
             <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Janela de Descanso entre Provas (RF02)</h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Se uma prova ocorre na posição cronológica <em>k</em>, o atleta escalado não poderá disputar nenhuma regata entre 
+              Se uma prova ocorre na posição cronológica <em>k</em>, o atleta escalado não poderá disputar nenhuma regata entre
               as posições <em>k - intervalo</em> e <em>k + intervalo</em>, preservando a recuperação muscular.
             </p>
           </div>
@@ -1187,21 +1182,21 @@ export default function App() {
           <div className="p-4">
             <p className="text-white font-medium text-sm">O que fazer se o botão de "Executar Otimização" estiver desabilitado?</p>
             <p className="text-slate-400 text-sm mt-1">
-              Verifique os 4 cartões de validação na tela de Processamento. É necessário que todas as provas tenham identificador, data e hora válidos, 
+              Verifique os 4 cartões de validação na tela de Processamento. É necessário que todas as provas tenham identificador, data e hora válidos,
               que os remadores tenham nome e limites numéricos coerentes (mínimo &le; máximo) e que nenhuma regra manual aponte para dados inexistentes.
             </p>
           </div>
           <div className="p-4">
             <p className="text-white font-medium text-sm">Como iniciar um novo estudo ou reiniciar as configurações?</p>
             <p className="text-slate-400 text-sm mt-1">
-              Após visualizar os resultados, basta clicar no botão <strong>"NOVO ESTUDO"</strong> no topo da página ou navegar livremente pelas abas laterais 
+              Após visualizar os resultados, basta clicar no botão <strong>"NOVO ESTUDO"</strong> no topo da página ou navegar livremente pelas abas laterais
               para ajustar atletas, barcos e restrições.
             </p>
           </div>
           <div className="p-4">
             <p className="text-white font-medium text-sm">Como funciona o cálculo do Grau Técnico?</p>
             <p className="text-slate-400 text-sm mt-1">
-              O grau varia de 0.0 a 1.0 e reflete o histórico esportivo e desempenho nos testes de remoergômetro. 
+              O grau varia de 0.0 a 1.0 e reflete o histórico esportivo e desempenho nos testes de remoergômetro.
               O CPLEX prioriza alocar atletas com notas mais altas nos barcos principais para maximizar a chance de vitória do clube.
             </p>
           </div>
@@ -1218,7 +1213,7 @@ export default function App() {
             <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-sky-500 rounded-full border-t-transparent animate-spin"></div>
             <div className="absolute inset-0 flex items-center justify-center text-sky-500">
-               <IconZap />
+              <IconZap />
             </div>
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">Processando Modelo Matemático</h2>
@@ -1228,51 +1223,50 @@ export default function App() {
         </div>
       ) : (
         <div className="w-full max-w-xl bg-slate-900 p-10 rounded-3xl border border-slate-800 shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
-           {/* Decorative background glow */}
+          {/* Decorative background glow */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-sky-500/20 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
           <div className="p-4 bg-slate-800/50 rounded-2xl mb-6 shadow-inner relative z-10">
-             <IconDashboard />
+            <IconDashboard />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Validação Pré-Voo</h2>
+          <h2 className="text-2xl font-bold text-white mb-2 relative z-10">Validação Prévia</h2>
           <p className="text-slate-400 mb-8 relative z-10">Verifique a integridade dos dados antes de executar o otimizador.</p>
-          
+
           <div className="space-y-4 w-full mb-10 relative z-10 text-left">
-             <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                <span className="font-medium text-slate-300 flex items-center gap-3">
-                    <IconTrendingDown /> Parâmetros Globais
-                </span>
-                {status.configValid ? <IconCheckCircle /> : <IconXCircle />}
-             </div>
-             <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                <span className="font-medium text-slate-300 flex items-center gap-3">
-                    <IconFlag /> Grade de Provas
-                </span>
-                {status.provasValid ? <IconCheckCircle /> : <IconXCircle />}
-             </div>
-             <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                <span className="font-medium text-slate-300 flex items-center gap-3">
-                    <IconUsers /> Plantel de Remadores
-                </span>
-                {status.atletasValid ? <IconCheckCircle /> : <IconXCircle />}
-             </div>
-             <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                <span className="font-medium text-slate-300 flex items-center gap-3">
-                    <IconLock /> Regras Manuais
-                </span>
-                {status.restricoesValid ? <IconCheckCircle /> : <IconXCircle />}
-             </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+              <span className="font-medium text-slate-300 flex items-center gap-3">
+                <IconTrendingDown /> Parâmetros Globais
+              </span>
+              {status.configValid ? <IconCheckCircle /> : <IconXCircle />}
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+              <span className="font-medium text-slate-300 flex items-center gap-3">
+                <IconFlag /> Grade de Provas
+              </span>
+              {status.provasValid ? <IconCheckCircle /> : <IconXCircle />}
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+              <span className="font-medium text-slate-300 flex items-center gap-3">
+                <IconUsers /> Quadro de Atletas
+              </span>
+              {status.atletasValid ? <IconCheckCircle /> : <IconXCircle />}
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
+              <span className="font-medium text-slate-300 flex items-center gap-3">
+                <IconLock /> Regras Manuais
+              </span>
+              {status.restricoesValid ? <IconCheckCircle /> : <IconXCircle />}
+            </div>
           </div>
 
-          <button 
+          <button
             onClick={handleSolucionar}
             disabled={!allValid}
-            className={`w-full py-4 rounded-xl font-bold tracking-wide transition-all duration-300 shadow-xl relative z-10 flex items-center justify-center gap-2 ${
-              allValid 
-                ? 'bg-sky-500 hover:bg-sky-400 text-white hover:shadow-sky-500/25 hover:-translate-y-0.5' 
+            className={`w-full py-4 rounded-xl font-bold tracking-wide transition-all duration-300 shadow-xl relative z-10 flex items-center justify-center gap-2 ${allValid
+                ? 'bg-sky-500 hover:bg-sky-400 text-white hover:shadow-sky-500/25 hover:-translate-y-0.5'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-            }`}
+              }`}
           >
             <IconZap /> EXECUTAR OTIMIZAÇÃO (CPLEX)
           </button>
@@ -1290,7 +1284,7 @@ export default function App() {
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">Cálculos & Formulação do Sistema</h1>
         <p className="text-slate-400 mt-2 text-base leading-relaxed">
-          Detalhamento analítico de todas as fórmulas, penalizações, restrições e da Função Objetivo calculadas pelo 
+          Detalhamento analítico de todas as fórmulas, penalizações, restrições e da Função Objetivo calculadas pelo
           modelo de Programação Linear Inteira (PLI) implementado para o solver CPLEX.
         </p>
       </div>
@@ -1415,7 +1409,7 @@ export default function App() {
               <span className="font-mono text-slate-500">|k - k'| &gt; η</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
-              Se o atleta compete na prova de ordem cronológica <em>k</em>, fica impedido de ser alocado em qualquer prova no intervalo 
+              Se o atleta compete na prova de ordem cronológica <em>k</em>, fica impedido de ser alocado em qualquer prova no intervalo
               [<em>k - η</em>, <em>k + η</em>], garantindo recuperação física adequada.
             </p>
           </div>
@@ -1471,7 +1465,7 @@ export default function App() {
 
   const renderResults = () => {
     const rawAllocations = solutionResult ? solutionResult.allocations : [];
-    const displayAllocations = resultFilter === 'allocated' 
+    const displayAllocations = resultFilter === 'allocated'
       ? rawAllocations.filter(a => a.athletes && a.athletes.length > 0)
       : rawAllocations;
 
@@ -1485,21 +1479,21 @@ export default function App() {
             <h1 className="text-3xl font-bold text-white tracking-tight">Resultado da Alocação</h1>
             <p className="text-slate-400 mt-1">Escalação calculada com base no modelo matemático de Programação Inteira (Ramalho, 2024).</p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
-             <div className="bg-slate-900 border border-slate-700 rounded-xl px-5 py-3 shadow-inner flex flex-col items-center">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Função Objetivo (Máx)</span>
-                <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 font-mono">
-                    {objectiveVal}
-                </span>
+            <div className="bg-slate-900 border border-slate-700 rounded-xl px-5 py-3 shadow-inner flex flex-col items-center">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Função Objetivo (Máx)</span>
+              <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400 font-mono">
+                {objectiveVal}
+              </span>
             </div>
-            <button 
+            <button
               onClick={handleExportResultadosCSV}
               className="bg-sky-600 hover:bg-sky-500 text-white px-5 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-sky-500 h-full"
             >
               <IconDownload /> <span>Exportar Solução (.csv)</span>
             </button>
-            <button 
+            <button
               onClick={handleExportContagemAlocacoesCSV}
               className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-3 rounded-xl flex items-center justify-center text-sm font-medium transition-colors shadow-sm gap-2 border border-slate-700 h-full"
               title="Salvar relatório com participações mínimas, máximas e sugeridas"
@@ -1520,11 +1514,10 @@ export default function App() {
                 const isOver = ac.allocated > ac.max;
                 const isUnder = ac.allocated < ac.min;
                 return (
-                  <div key={ac.id} className={`p-2.5 rounded-xl border text-xs flex flex-col justify-between ${
-                    isOver ? 'bg-rose-950/30 border-rose-800/50 text-rose-300' :
-                    isUnder ? 'bg-amber-950/30 border-amber-800/50 text-amber-300' :
-                    'bg-slate-950 border-slate-800 text-slate-300'
-                  }`}>
+                  <div key={ac.id} className={`p-2.5 rounded-xl border text-xs flex flex-col justify-between ${isOver ? 'bg-rose-950/30 border-rose-800/50 text-rose-300' :
+                      isUnder ? 'bg-amber-950/30 border-amber-800/50 text-amber-300' :
+                        'bg-slate-950 border-slate-800 text-slate-300'
+                    }`}>
                     <span className="font-semibold truncate">{ac.name}</span>
                     <div className="flex justify-between items-center mt-1 text-[11px] font-mono">
                       <span className="text-slate-500">[{ac.min}-{ac.max}]</span>
@@ -1539,101 +1532,98 @@ export default function App() {
 
         {/* Lista de Tripulações com Rolagem Dedicada */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-sm flex flex-col">
-            <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h3 className="text-slate-300 font-medium flex items-center gap-2">
-                  <IconFlag /> Tripulações Formadas ({displayAllocations.length})
-                </h3>
-                <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
-                    <button 
-                      onClick={() => setResultFilter('allocated')}
-                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                        resultFilter === 'allocated' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
-                      }`}
-                    >
-                      VISÃO COMPACTA (COM BARCO)
-                    </button>
-                    <button 
-                      onClick={() => setResultFilter('all')}
-                      className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${
-                        resultFilter === 'all' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
-                      }`}
-                    >
-                      VISÃO COMPLETA (TODAS AS PROVAS)
-                    </button>
-                </div>
+          <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h3 className="text-slate-300 font-medium flex items-center gap-2">
+              <IconFlag /> Tripulações Formadas ({displayAllocations.length})
+            </h3>
+            <div className="flex bg-slate-950 rounded-lg p-1 border border-slate-800">
+              <button
+                onClick={() => setResultFilter('allocated')}
+                className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${resultFilter === 'allocated' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                  }`}
+              >
+                VISÃO COMPACTA (COM BARCO)
+              </button>
+              <button
+                onClick={() => setResultFilter('all')}
+                className={`px-4 py-1.5 text-xs font-bold rounded-md transition-colors ${resultFilter === 'all' ? 'bg-slate-800 text-sky-400 shadow-sm border border-slate-700' : 'text-slate-500 hover:text-white'
+                  }`}
+              >
+                VISÃO COMPLETA (TODAS AS PROVAS)
+              </button>
             </div>
-            
-            <div className="overflow-y-auto max-h-[600px] custom-scrollbar p-4 space-y-3">
-            {displayAllocations.map((row, i) => (
-                <div key={i} className="bg-slate-950/50 hover:bg-slate-800/80 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors border border-slate-800/50 group gap-4 relative overflow-hidden">
-                {/* Status indicator line on the left */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1 ${
-                  row.athletes && row.athletes.length > 0 ? 'bg-emerald-500/50 group-hover:bg-emerald-400' : 'bg-slate-700'
-                } transition-colors`}></div>
-                
-                <div className="flex flex-wrap items-center gap-4 md:gap-6 pl-2 w-full md:w-auto">
-                    <div className="flex flex-col">
-                        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Prova</span>
-                        <span className="font-mono font-bold text-sky-400 text-lg">{row.id}</span>
-                    </div>
-                    
-                    <div className="flex flex-col">
-                         <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Data/Hora</span>
-                         <span className="text-slate-300 text-sm">{row.date} <span className="text-slate-500">•</span> {row.time}</span>
-                    </div>
+          </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">Barco</span>
-                            <span className="bg-slate-200 text-slate-900 px-2 py-1 rounded font-bold text-xs">{row.boat}</span>
-                        </div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">Classe</span>
-                            <span className="bg-amber-400 text-slate-900 w-7 h-7 flex items-center justify-center rounded font-black shadow-sm text-sm">{row.class}</span>
-                        </div>
+          <div className="overflow-y-auto max-h-[600px] custom-scrollbar p-4 space-y-3">
+            {displayAllocations.map((row, i) => (
+              <div key={i} className="bg-slate-950/50 hover:bg-slate-800/80 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between transition-colors border border-slate-800/50 group gap-4 relative overflow-hidden">
+                {/* Status indicator line on the left */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${row.athletes && row.athletes.length > 0 ? 'bg-emerald-500/50 group-hover:bg-emerald-400' : 'bg-slate-700'
+                  } transition-colors`}></div>
+
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 pl-2 w-full md:w-auto">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Prova</span>
+                    <span className="font-mono font-bold text-sky-400 text-lg">{row.id}</span>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Data/Hora</span>
+                    <span className="text-slate-300 text-sm">{row.date} <span className="text-slate-500">•</span> {row.time}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">Barco</span>
+                      <span className="bg-slate-200 text-slate-900 px-2 py-1 rounded font-bold text-xs">{row.boat}</span>
                     </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase mb-1">Classe</span>
+                      <span className="bg-amber-400 text-slate-900 w-7 h-7 flex items-center justify-center rounded font-black shadow-sm text-sm">{row.class}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8 w-full md:w-auto border-t md:border-t-0 border-slate-800 pt-4 md:pt-0">
-                    
-                    <div className="flex gap-6">
-                        <div className="flex flex-col text-left md:text-right">
-                             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Média Idade</span>
-                             <span className="text-slate-200 text-sm">{row.age !== '-' ? `${row.age} anos` : '-'}</span>
-                        </div>
-                        <div className="flex flex-col text-left md:text-right">
-                            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Grau Final</span>
-                            <span className="font-mono font-bold text-emerald-400 text-sm">{row.score}</span>
-                        </div>
+
+                  <div className="flex gap-6">
+                    <div className="flex flex-col text-left md:text-right">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Média Idade</span>
+                      <span className="text-slate-200 text-sm">{row.age !== '-' ? `${row.age} anos` : '-'}</span>
                     </div>
-                    
-                    <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-72">
+                    <div className="flex flex-col text-left md:text-right">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Grau Final</span>
+                      <span className="font-mono font-bold text-emerald-400 text-sm">{row.score}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-wrap md:justify-end gap-2 w-full md:w-72">
                     {row.athletes && row.athletes.length > 0 ? (
                       row.athletes.map(a => (
                         <div key={a.id} className="relative cursor-help group/tooltip">
-                        <span className="text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 hover:border-slate-500 transition-colors shadow-sm block">
+                          <span className="text-slate-300 bg-slate-900 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 hover:border-slate-500 transition-colors shadow-sm block">
                             {a.name}
-                        </span>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-slate-800 text-slate-200 text-xs py-3 px-4 rounded-xl shadow-2xl border border-slate-600 opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 w-max pointer-events-none flex flex-col gap-2 translate-y-2 group-hover/tooltip:translate-y-0">
+                          </span>
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-slate-800 text-slate-200 text-xs py-3 px-4 rounded-xl shadow-2xl border border-slate-600 opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 w-max pointer-events-none flex flex-col gap-2 translate-y-2 group-hover/tooltip:translate-y-0">
                             <div className="font-bold text-white border-b border-slate-700 pb-2">{a.name}</div>
                             <div className="flex justify-between gap-6">
-                                <span className="text-slate-400">Idade base:</span> 
-                                <span className="font-mono text-sky-300 font-medium">{a.age} anos</span>
+                              <span className="text-slate-400">Idade base:</span>
+                              <span className="font-mono text-sky-300 font-medium">{a.age} anos</span>
                             </div>
                             <div className="flex justify-between gap-6">
-                                <span className="text-slate-400">Grau técnico:</span> 
-                                <span className="font-mono text-emerald-300 font-medium">{a.score}</span>
+                              <span className="text-slate-400">Grau técnico:</span>
+                              <span className="font-mono text-emerald-300 font-medium">{a.score}</span>
                             </div>
-                        </div>
+                          </div>
                         </div>
                       ))
                     ) : (
                       <span className="text-slate-600 text-xs italic">Sem guarnição alocada</span>
                     )}
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             ))}
 
             {displayAllocations.length === 0 && (
@@ -1641,7 +1631,7 @@ export default function App() {
                 Nenhuma alocação encontrada para a visualização selecionada.
               </div>
             )}
-            </div>
+          </div>
         </div>
       </div>
     );
@@ -1649,110 +1639,111 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-slate-950 font-sans selection:bg-sky-500/30 overflow-hidden text-slate-200">
-      
+
       {/* Sidebar Navigation */}
       <aside className={`${isSidebarOpen ? 'w-64' : 'w-0 lg:w-64'} flex-shrink-0 bg-slate-900 border-r border-slate-800 transition-all duration-300 z-20 flex flex-col overflow-hidden fixed lg:relative h-full`}>
         {/* Branding */}
         <div className="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
-            <div className="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>
-            </div>
-            <span className="ml-3 font-bold text-white tracking-wide truncate">Interface Dinâmica para Equipes de Remo</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4" /><polyline points="14 2 14 8 20 8" /><path d="M2 15h10" /><path d="m9 18 3-3-3-3" /></svg>
+          </div>
+          <span className="ml-3 font-bold text-white tracking-wide truncate">Interface Dinâmica para Equipes de Remo</span>
         </div>
 
         {/* Menu Items */}
         <div className="p-4 space-y-1 overflow-y-auto flex-1 custom-scrollbar">
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-2">Visão Geral</div>
-            <NavItem id="dashboard" icon={IconDashboard} label="Dashboard" disabled={isSolved} />
-            
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Dados de Entrada</div>
-            <NavItem id="provas" icon={IconFlag} label="Grade de Provas" disabled={isSolved} />
-            <NavItem id="atletas" icon={IconUsers} label="Plantel de Atletas" disabled={isSolved} />
-            <NavItem id="restricoes" icon={IconLock} label="Regras Manuais" disabled={isSolved} />
-            
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Processamento</div>
-            <NavItem id="optimization" icon={IconZap} label="Gerar Resultado" disabled={isSolved && activeRoute !== 'optimization'} />
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-2">Visão Geral</div>
+          <NavItem id="dashboard" icon={IconDashboard} label="Dashboard" disabled={isSolved} />
 
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Suporte</div>
-            <NavItem id="ajuda" icon={IconHelp} label="Ajuda & Manual" />
-            <NavItem id="calculos" icon={IconCalculator} label="Cálculos do Sistema" />
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Dados de Entrada</div>
+          <NavItem id="provas" icon={IconFlag} label="Grade de Provas" disabled={isSolved} />
+          <NavItem id="atletas" icon={IconUsers} label="Quadro de Atletas" disabled={isSolved} />
+          <NavItem id="restricoes" icon={IconLock} label="Regras Manuais" disabled={isSolved} />
+
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Processamento</div>
+          <NavItem id="optimization" icon={IconZap} label="Gerar Resultado" disabled={isSolved && activeRoute !== 'optimization'} />
+
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Suporte</div>
+          <NavItem id="ajuda" icon={IconHelp} label="Ajuda & Manual" />
+          <NavItem id="calculos" icon={IconCalculator} label="Cálculos do Sistema" />
         </div>
 
         {/* User / Credits Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/30">
-            <button className="flex items-center space-x-3 w-full p-2 rounded-xl hover:bg-slate-800 transition-colors">
-                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-                    <span className="text-xs font-bold text-slate-400">HH</span>
-                 </div>
-                 <div className="flex flex-col text-left">
-                    <span className="text-sm font-medium text-slate-200">Hilton Homem</span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-wider">UFF / Cederj</span>
-                 </div>
-            </button>
+          <button className="flex items-center space-x-3 w-full p-2 rounded-xl hover:bg-slate-800 transition-colors">
+            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+              <span className="text-xs font-bold text-slate-400">HH</span>
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-sm font-medium text-slate-200">Hilton Homem</span>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">UFF / Cederj</span>
+            </div>
+          </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 bg-slate-950 relative">
-        
+
         {/* Top Header */}
         <header className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md z-10 shrink-0">
-             <div className="flex items-center">
-                <button 
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="lg:hidden mr-4 p-2 text-slate-400 hover:text-white bg-slate-900 rounded-lg border border-slate-800"
-                >
-                    <IconMenu />
-                </button>
-                 <div className="text-sm font-medium text-slate-400 hidden sm:block truncate">
-                    Sistema de TCC Equipes de Remo <span className="text-slate-600 mx-2">/</span> Hilton Homem | Msc. Nathaniel Ramalho | Dra. Simone Martins
-                 </div>
+          <div className="flex items-center">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden mr-4 p-2 text-slate-400 hover:text-white bg-slate-900 rounded-lg border border-slate-800"
+            >
+              <IconMenu />
+            </button>
+            <div className="text-sm font-medium text-slate-400 hidden sm:block truncate">
+              Sistema de TCC Equipes de Remo <span className="text-slate-600 mx-2">/</span> Hilton Homem | Msc. Nathaniel Ramalho | Dra. Simone Martins
             </div>
-            <div className="flex items-center space-x-4">
-                {isSolved && (
-                     <button 
-                        onClick={() => { setIsSolved(false); setActiveRoute('dashboard'); }}
-                        className="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 px-3 rounded-md transition-colors border border-slate-700 flex items-center"
-                     >
-                        <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                        NOVO ESTUDO
-                     </button>
-                )}
-                <button 
-                  onClick={() => setActiveRoute('ajuda')}
-                  className={`transition-colors p-2 rounded-lg ${activeRoute === 'ajuda' ? 'text-sky-400 bg-sky-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-                  title="Central de Ajuda"
-                >
-                    <IconHelp />
-                </button>
-            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            {isSolved && (
+              <button
+                onClick={() => { setIsSolved(false); setActiveRoute('dashboard'); }}
+                className="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 px-3 rounded-md transition-colors border border-slate-700 flex items-center"
+              >
+                <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                NOVO ESTUDO
+              </button>
+            )}
+            <button
+              onClick={() => setActiveRoute('ajuda')}
+              className={`transition-colors p-2 rounded-lg ${activeRoute === 'ajuda' ? 'text-sky-400 bg-sky-500/10' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              title="Central de Ajuda"
+            >
+              <IconHelp />
+            </button>
+          </div>
         </header>
 
         {/* Scrollable Page Content */}
         <div className="flex-1 overflow-auto p-4 sm:p-8 custom-scrollbar">
-            <div className="mx-auto max-w-7xl h-full">
-                {activeRoute === 'dashboard' && renderDashboard()}
-                {activeRoute === 'provas' && renderProvas()}
-                {activeRoute === 'atletas' && renderAtletas()}
-                {activeRoute === 'restricoes' && renderRestricoes()}
-                {activeRoute === 'ajuda' && renderAjuda()}
-                {activeRoute === 'calculos' && renderCalculos()}
-                {activeRoute === 'optimization' && !isSolved && renderOptimization()}
-                {activeRoute === 'optimization' && isSolved && renderResults()}
-            </div>
+          <div className="mx-auto max-w-7xl h-full">
+            {activeRoute === 'dashboard' && renderDashboard()}
+            {activeRoute === 'provas' && renderProvas()}
+            {activeRoute === 'atletas' && renderAtletas()}
+            {activeRoute === 'restricoes' && renderRestricoes()}
+            {activeRoute === 'ajuda' && renderAjuda()}
+            {activeRoute === 'calculos' && renderCalculos()}
+            {activeRoute === 'optimization' && !isSolved && renderOptimization()}
+            {activeRoute === 'optimization' && isSolved && renderResults()}
+          </div>
         </div>
 
         {/* Mobile Overlay */}
         {isSidebarOpen && (
-            <div 
-                className="fixed inset-0 bg-black/60 z-10 lg:hidden backdrop-blur-sm"
-                onClick={() => setIsSidebarOpen(false)}
-            ></div>
+          <div
+            className="fixed inset-0 bg-black/60 z-10 lg:hidden backdrop-blur-sm"
+            onClick={() => setIsSidebarOpen(false)}
+          ></div>
         )}
       </main>
 
       {/* Global Styles */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
