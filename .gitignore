@@ -1,0 +1,20 @@
+# Documentos de TCC e relatórios
+*.docx
+*.doc
+*.pdf
+~$*
+
+# Scripts de manipulação do Word / TCC
+*.py
+__pycache__/
+
+# Backups e temporários
+*.backup*
+*.bak
+scratch/
+
+# Dependências e builds do frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local

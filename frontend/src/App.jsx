@@ -27,6 +27,34 @@ const AGE_CLASSES = {
   'G': 65, 'H': 70, 'I': 75, 'J': 80, 'K': 83, 'L': 86, 'M': 89
 };
 
+const BOAT_TYPES = ['1X', '2X', '2-', '4X', '4-', '4+', '8+'];
+
+const getSeatsFromBoat = (boat) => {
+  if (!boat) return 1;
+  const b = String(boat).trim().toUpperCase();
+  if (b.includes('8')) return 8;
+  if (b.includes('4')) return 4;
+  if (b.includes('2')) return 2;
+  return 1;
+};
+
+const normalizeSex = (val) => {
+  if (!val) return 'M';
+  const s = String(val).trim().toUpperCase();
+  if (s === 'FEMALE' || s === 'F' || s === 'W' || s === 'FEMININO' || s === 'MULHER') return 'W';
+  if (s === 'MIX' || s === 'MISTO' || s === 'X') return 'Mix';
+  return 'M';
+};
+
+const formatProvaFullDescription = (p) => {
+  if (!p) return '';
+  const sexLabel = p.sex === 'W' ? 'Feminino (W)' : p.sex === 'M' ? 'Masculino (M)' : 'Misto (Mix)';
+  const seats = getSeatsFromBoat(p.boat || '') || p.seats || 1;
+  const qtd = p.amount ? `${p.amount} barco(s)` : '1 barco';
+  const dataHora = (p.date || p.time) ? `${p.date || ''} ${p.time || ''}`.trim() : 'Sem data/hora';
+  return `Prova ${p.id} • ${dataHora} • ${sexLabel} • Categoria ${p.ageClass || 'A'} • Barco ${p.boat || '1X'} (${seats} lug.) • ${qtd}`;
+};
+
 // Funções utilitárias de CSV (RNF01 a RNF08)
 const downloadCSV = (filename, content) => {
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
@@ -51,30 +79,10 @@ export default function App() {
   // Requirement RF01 (Penalty) & RF02 (Rest Interval)
   const [config, setConfig] = useState({ penalty: 0.05, restInterval: 5 });
 
-  const [provas, setProvas] = useState([
-    { uid: 1, id: '#7', date: '30/03', time: '09:12', sex: 'W', ageClass: 'B', seats: 1, boat: '1X', amount: 1 },
-    { uid: 2, id: '#9', date: '30/03', time: '09:26', sex: 'M', ageClass: 'G', seats: 2, boat: '2X', amount: 1 },
-    { uid: 3, id: '#19', date: '30/03', time: '10:36', sex: 'Mix', ageClass: 'F', seats: 2, boat: '2X', amount: 1 },
-    { uid: 4, id: '#24', date: '30/03', time: '11:11', sex: 'M', ageClass: 'E', seats: 4, boat: '4+', amount: 1 },
-    { uid: 5, id: '#29', date: '30/03', time: '11:46', sex: 'M', ageClass: 'D', seats: 2, boat: '2X', amount: 1 },
-    { uid: 6, id: '#30', date: '30/03', time: '12:00', sex: 'W', ageClass: 'E', seats: 4, boat: '4-', amount: 1 }
-  ]);
-
-  const [atletas, setAtletas] = useState([
-    { id: 1, name: 'Atleta 1', min: 1, max: 3, sex: 'M', age: 59, score: 0.2 },
-    { id: 2, name: 'Atleta 2', min: 1, max: 3, sex: 'M', age: 59, score: 0.8 },
-    { id: 8, name: 'Atleta 8', min: 1, max: 3, sex: 'M', age: 62, score: 0.8 },
-    { id: 15, name: 'Atleta 15', min: 1, max: 3, sex: 'M', age: 67, score: 0.8 },
-    { id: 18, name: 'Atleta 18', min: 1, max: 3, sex: 'W', age: 44, score: 0.7 },
-    { id: 19, name: 'Atleta 19', min: 1, max: 3, sex: 'W', age: 57, score: 0.9 },
-    { id: 21, name: 'Atleta 21', min: 1, max: 3, sex: 'W', age: 59, score: 0.8 }
-  ]);
-
-  // Requirement RF05 (Fix - por Prova) & RF06 (Block - por Atleta)
-  const [restricoes, setRestricoes] = useState([
-    { uid: 1, type: 'block', atletaId: 1, blockedBoats: ['1X'], blockedProvaUids: [1], error: null },
-    { uid: 2, type: 'fix', provaUid: 3, atletaIds: [8], error: null }
-  ]);
+  // Inicializacao limpa conforme solicitado: sem dados pre-carregados (inicia zerado)
+  const [provas, setProvas] = useState([]);
+  const [atletas, setAtletas] = useState([]);
+  const [restricoes, setRestricoes] = useState([]);
 
   // Handle responsiveness
   useEffect(() => {
@@ -304,12 +312,39 @@ export default function App() {
   };
 
   // --- Handlers de CSV (RNF01 a RNF08) ---
+  // Carregar dados de exemplo oficiais para teste rápido
+  const handleLoadSampleData = () => {
+    setProvas([
+      { uid: 1, id: '1', date: '21/06', time: '08:30', sex: 'W', ageClass: 'A', seats: 4, boat: '4-', amount: 2 },
+      { uid: 2, id: '2', date: '21/06', time: '08:37', sex: 'M', ageClass: 'H', seats: 8, boat: '8+', amount: 2 },
+      { uid: 3, id: '3', date: '21/06', time: '08:44', sex: 'W', ageClass: 'E', seats: 2, boat: '2X', amount: 2 },
+      { uid: 4, id: '4', date: '21/06', time: '08:51', sex: 'M', ageClass: 'A', seats: 4, boat: '4-', amount: 2 },
+      { uid: 5, id: '5', date: '21/06', time: '08:58', sex: 'W', ageClass: 'H', seats: 1, boat: '1X', amount: 2 },
+      { uid: 6, id: '6', date: '21/06', time: '09:05', sex: 'M', ageClass: 'E', seats: 8, boat: '8+', amount: 2 },
+      { uid: 7, id: '7', date: '21/06', time: '09:12', sex: 'W', ageClass: 'B', seats: 4, boat: '4-', amount: 2 }
+    ]);
+    setAtletas([
+      { id: 1, name: 'Atleta 1', min: 1, max: 3, sex: 'M', age: 59, score: 0.2 },
+      { id: 2, name: 'Atleta 2', min: 1, max: 3, sex: 'M', age: 59, score: 0.8 },
+      { id: 3, name: 'Atleta 3', min: 1, max: 1, sex: 'M', age: 67, score: 0.2 },
+      { id: 7, name: 'Atleta 7', min: 1, max: 3, sex: 'M', age: 51, score: 0.7 },
+      { id: 8, name: 'Atleta 8', min: 1, max: 3, sex: 'M', age: 62, score: 0.8 },
+      { id: 15, name: 'Atleta 15', min: 1, max: 3, sex: 'M', age: 67, score: 0.8 },
+      { id: 17, name: 'Atleta 17', min: 1, max: 1, sex: 'W', age: 60, score: 0.8 },
+      { id: 18, name: 'Atleta 18', min: 1, max: 3, sex: 'W', age: 44, score: 0.7 },
+      { id: 19, name: 'Atleta 19', min: 1, max: 3, sex: 'W', age: 57, score: 0.9 },
+      { id: 21, name: 'Atleta 21', min: 1, max: 3, sex: 'W', age: 59, score: 0.8 }
+    ]);
+    setRestricoes([]);
+  };
+
   const handleExportProvasCSV = () => {
-    let csv = 'ID;Data;Hora;Sexo;Classe;Lugares;Barco;Quantidade\n';
+    // Formato CSV limpo: Id;Data;Hora;Sexo;Classe;Tipo (sem coluna Barcos ou Atletas Fixos)
+    let csv = 'Id;Data;Hora;Sexo;Classe;Tipo\n';
     provas.forEach(p => {
-      csv += `${p.id};${p.date};${p.time};${p.sex};${p.ageClass};${p.seats};${p.boat};${p.amount || 1}\n`;
+      csv += `${p.id};${p.date};${p.time};${p.sex};${p.ageClass};${p.boat}\n`;
     });
-    downloadCSV('provas_remo.csv', csv);
+    downloadCSV('arqbasedia1.csv', csv);
   };
 
   const handleImportProvasCSV = (e) => {
@@ -323,17 +358,29 @@ export default function App() {
       const newProvas = [];
       for (let i = 1; i < lines.length; i++) {
         const parts = lines[i].split(/[;,]/).map(p => p.trim());
-        if (parts.length >= 7) {
+        // Formato atual: Id;Data;Hora;Sexo;Classe;Tipo (Barcos default = 2)
+        if (parts.length >= 5) {
+          let boat = '1X';
+          let amount = 2; // Default solicitado pela orientadora: 2 barcos
+
+          if (parts.length >= 8 && /^[1248]$/.test(parts[5]) && parts[6]) {
+            boat = parts[6].toUpperCase();
+          } else if (parts[5]) {
+            boat = parts[5].toUpperCase();
+          }
+
+          const seats = getSeatsFromBoat(boat);
+
           newProvas.push({
             uid: i,
             id: parts[0] || `#${i}`,
-            date: parts[1] || '30/03',
-            time: parts[2] || '09:00',
-            sex: parts[3] || 'M',
-            ageClass: parts[4] || 'A',
-            seats: parseInt(parts[5]) || 1,
-            boat: parts[6] || '1X',
-            amount: parseInt(parts[7]) || 1
+            date: parts[1] || '21/06',
+            time: parts[2] || '08:30',
+            sex: normalizeSex(parts[3]),
+            ageClass: (parts[4] || 'A').toUpperCase(),
+            seats: seats,
+            boat: boat,
+            amount: amount // Default 2 barcos
           });
         }
       }
@@ -343,11 +390,12 @@ export default function App() {
   };
 
   const handleExportAtletasCSV = () => {
-    let csv = 'Nome;Minimo;Maximo;Sexo;Idade;Grau\n';
+    let csv = 'Nome;Mínimo de participações;Máximo de participações;Sexo;Idade;Grau\n';
     atletas.forEach(a => {
-      csv += `${a.name};${a.min};${a.max};${a.sex};${a.age};${a.score}\n`;
+      const sexLabel = a.sex === 'W' ? 'Female' : 'Male';
+      csv += `${a.name};${a.min};${a.max};${sexLabel};${a.age};${a.score}\n`;
     });
-    downloadCSV('atletas_remo.csv', csv);
+    downloadCSV('atletasdia1.csv', csv);
   };
 
   const handleImportAtletasCSV = (e) => {
@@ -367,7 +415,7 @@ export default function App() {
             name: parts[0] || `Atleta ${i}`,
             min: parseInt(parts[1]) || 0,
             max: parseInt(parts[2]) || 3,
-            sex: parts[3] || 'M',
+            sex: normalizeSex(parts[3]),
             age: parseInt(parts[4]) || 30,
             score: parseFloat(parts[5].replace(',', '.')) || 0.5
           });
@@ -424,11 +472,19 @@ export default function App() {
 
   const renderDashboard = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Visão Geral</h1>
           <p className="text-slate-400 mt-1">Visão geral do campeonato e configurações do otimizador.</p>
         </div>
+        {provas.length === 0 && atletas.length === 0 && (
+          <button
+            onClick={handleLoadSampleData}
+            className="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <IconZap /> Carregar Dados de Exemplo
+          </button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -438,21 +494,21 @@ export default function App() {
             <IconFlag />
           </div>
           <h3 className="text-slate-400 text-sm font-medium">Provas (Regatas) Cadastradas</h3>
-          <p className="text-4xl font-bold text-white mt-2">{provas.length}</p>
+          <p className="text-4xl font-bold text-white mt-2 font-mono">{provas.length > 0 ? provas.length : '-'}</p>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <IconUsers />
           </div>
           <h3 className="text-slate-400 text-sm font-medium">Remadores Inscritos</h3>
-          <p className="text-4xl font-bold text-white mt-2">{atletas.length}</p>
+          <p className="text-4xl font-bold text-white mt-2 font-mono">{atletas.length > 0 ? atletas.length : '-'}</p>
         </div>
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <IconLock />
           </div>
           <h3 className="text-slate-400 text-sm font-medium">Restrições (Fixos/Bloqueados)</h3>
-          <p className="text-4xl font-bold text-white mt-2">{restricoes.length}</p>
+          <p className="text-4xl font-bold text-white mt-2 font-mono">{restricoes.length > 0 ? restricoes.length : '-'}</p>
         </div>
       </div>
 
@@ -522,7 +578,7 @@ export default function App() {
             <IconDownload /> <span className="ml-2">Exportar CSV</span>
           </button>
           <button
-            onClick={() => setProvas([...provas, { uid: generateUid(provas), id: `#${provas.length + 10}`, date: '', time: '', sex: 'M', ageClass: 'A', seats: 1, boat: '1X', amount: 1 }])}
+            onClick={() => setProvas([...provas, { uid: generateUid(provas), id: `${provas.length + 1}`, date: '21/06', time: '08:30', sex: 'M', ageClass: 'A', seats: 1, boat: '1X', amount: 1 }])}
             className="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors shadow-lg shadow-sky-500/20"
           >
             <IconPlus /> <span className="ml-2">Adicionar Prova</span>
@@ -540,9 +596,7 @@ export default function App() {
                 <th className="px-6 py-4 font-semibold">Hora</th>
                 <th className="px-6 py-4 font-semibold">Sexo</th>
                 <th className="px-6 py-4 font-semibold text-center">Classe</th>
-                <th className="px-6 py-4 font-semibold text-center">Lugares</th>
-                <th className="px-6 py-4 font-semibold text-center">Barco</th>
-                <th className="px-6 py-4 font-semibold text-center">Qtd.</th>
+                <th className="px-6 py-4 font-semibold text-center">Tipo de Barco</th>
                 <th className="px-6 py-4 font-semibold w-12"></th>
               </tr>
             </thead>
@@ -562,7 +616,7 @@ export default function App() {
                       className={`w-20 bg-slate-950 border ${prova.time.trim() === '' ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} placeholder="hh:mm" />
                   </td>
                   <td className="px-6 py-3">
-                    <select value={prova.sex} onChange={(e) => { const newP = [...provas]; newP[idx].sex = e.target.value; setProvas(newP); }} className="w-full bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 hover:border-slate-600 transition-colors cursor-pointer appearance-none">
+                    <select value={prova.sex} onChange={(e) => { const newP = [...provas]; newP[idx].sex = normalizeSex(e.target.value); setProvas(newP); }} className="w-full bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 hover:border-slate-600 transition-colors cursor-pointer appearance-none">
                       <option value="M">Masculino</option><option value="W">Feminino</option><option value="Mix">Misto</option>
                     </select>
                   </td>
@@ -572,18 +626,21 @@ export default function App() {
                     </select>
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <select value={prova.seats} onChange={(e) => { const newP = [...provas]; newP[idx].seats = parseInt(e.target.value); setProvas(newP); }} className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center cursor-pointer appearance-none">
-                      {[1, 2, 4, 8].map(s => <option key={s} value={s}>{s}</option>)}
+                    <select
+                      value={prova.boat}
+                      onChange={(e) => {
+                        const newBoat = e.target.value;
+                        const newP = [...provas];
+                        newP[idx].boat = newBoat;
+                        newP[idx].seats = getSeatsFromBoat(newBoat);
+                        setProvas(newP);
+                      }}
+                      className="w-28 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center font-bold cursor-pointer"
+                    >
+                      {BOAT_TYPES.map(b => (
+                        <option key={b} value={b}>{b} ({getSeatsFromBoat(b)} lug.)</option>
+                      ))}
                     </select>
-                  </td>
-                  <td className="px-6 py-3 text-center">
-                    <select value={prova.boat} onChange={(e) => { const newP = [...provas]; newP[idx].boat = e.target.value; setProvas(newP); }} className="w-20 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center font-bold cursor-pointer appearance-none">
-                      {['1X', '2X', '2-', '4X', '4-', '4+', '8+'].map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-6 py-3 text-center">
-                    <input type="number" min="1" value={prova.amount} onChange={(e) => { const newP = [...provas]; newP[idx].amount = parseInt(e.target.value) || 1; setProvas(newP); }}
-                      className="w-16 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all" />
                   </td>
                   <td className="px-6 py-3 text-right">
                     <button onClick={() => setProvas(provas.filter(p => p.uid !== prova.uid))} className="text-slate-500 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
@@ -594,11 +651,11 @@ export default function App() {
               ))}
               {provas.length === 0 && (
                 <tr>
-                  <td colSpan="9" className="text-center py-16 text-slate-500">
+                  <td colSpan="7" className="text-center py-16 text-slate-500">
                     <div className="flex flex-col items-center justify-center">
                       <IconFlag className="w-12 h-12 mb-3 text-slate-700" />
                       <p>Nenhuma prova cadastrada no sistema.</p>
-                      <p className="text-sm mt-1">Importe um CSV ou adicione manualmente.</p>
+                      <p className="text-sm mt-1">Importe o arquivo arqbasedia1.csv ou adicione manualmente.</p>
                     </div>
                   </td>
                 </tr>
@@ -672,7 +729,7 @@ export default function App() {
                       className={`w-16 bg-slate-950 border ${atleta.min > atleta.max ? 'border-red-500/50' : 'border-slate-800'} rounded-md px-3 py-1.5 focus:border-sky-500 outline-none text-center transition-all`} />
                   </td>
                   <td className="px-6 py-3 text-center">
-                    <select value={atleta.sex} onChange={(e) => { const newA = [...atletas]; newA[idx].sex = e.target.value; setAtletas(newA); }} className="w-32 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center appearance-none cursor-pointer">
+                    <select value={normalizeSex(atleta.sex)} onChange={(e) => { const newA = [...atletas]; newA[idx].sex = normalizeSex(e.target.value); setAtletas(newA); }} className="w-32 bg-slate-950 border border-slate-800 rounded-md px-3 py-1.5 outline-none focus:border-sky-500 text-center appearance-none cursor-pointer">
                       <option value="M">Masculino</option><option value="W">Feminino</option>
                     </select>
                   </td>
@@ -715,7 +772,7 @@ export default function App() {
       <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Regras de Exceção</h1>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Fixar/Bloquear Atletas</h1>
             <p className="text-slate-400 mt-1">
               Bloqueie barcos ou provas para um atleta (RF06) ou fixe remadores em uma prova específica (RF05).
             </p>
@@ -811,7 +868,7 @@ export default function App() {
                         >
                           <option value="" disabled>Selecione um atleta...</option>
                           {atletas.map(a => (
-                            <option key={a.id} value={a.id}>{a.name} ({a.sex} • {a.age} anos)</option>
+                            <option key={a.id} value={a.id}>{a.name} ({normalizeSex(a.sex) === 'W' ? 'Fem.' : 'Masc.'} • {a.age} anos)</option>
                           ))}
                         </select>
                       </div>
@@ -839,7 +896,7 @@ export default function App() {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {boatTypes.map(boat => {
+                        {BOAT_TYPES.map(boat => {
                           const isBlocked = blockedBoats.includes(boat);
                           return (
                             <button
@@ -869,32 +926,37 @@ export default function App() {
                           {blockedProvaUids.length === 0 ? 'Nenhuma prova vetada' : `${blockedProvaUids.length} vetada(s)`}
                         </span>
                       </div>
-                      <div className="max-h-36 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
+                      <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
                         {provas.length === 0 && (
                           <span className="text-xs text-slate-500 italic">Nenhuma prova cadastrada.</span>
                         )}
                         {provas.map(p => {
                           const isBlocked = blockedProvaUids.includes(p.uid);
+                          const sexLabel = p.sex === 'W' ? 'Fem' : p.sex === 'M' ? 'Masc' : 'Misto';
+                          const seats = getSeatsFromBoat(p.boat) || p.seats || 1;
+                          const qtd = p.amount ? `${p.amount} barco(s)` : '1 barco';
                           return (
                             <div
                               key={p.uid}
                               onClick={() => toggleProva(p.uid)}
-                              className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors border ${isBlocked
+                              className={`flex items-center justify-between p-2 rounded-lg text-xs cursor-pointer transition-colors border ${isBlocked
                                   ? 'bg-rose-950/40 border-rose-600/60 text-rose-200'
                                   : 'bg-slate-900/60 border-slate-800/60 text-slate-300 hover:bg-slate-800'
                                 }`}
                             >
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono font-bold text-sky-400">{p.id}</span>
-                                <span className="text-slate-400">{p.date} {p.time}</span>
-                                <span className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300 font-semibold">{p.boat}</span>
-                                <span className="text-slate-500 text-[10px]">Classe {p.ageClass}</span>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="font-mono font-bold text-sky-400 bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-800/50">Prova {p.id}</span>
+                                <span className="text-slate-300 font-medium">{p.date} às {p.time}</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${p.sex === 'W' ? 'bg-pink-950/60 text-pink-300 border border-pink-800/40' : p.sex === 'M' ? 'bg-blue-950/60 text-blue-300 border border-blue-800/40' : 'bg-purple-950/60 text-purple-300 border border-purple-800/40'}`}>{sexLabel}</span>
+                                <span className="bg-amber-950/60 text-amber-300 border border-amber-800/40 px-1.5 py-0.5 rounded text-[10px] font-bold">Classe {p.ageClass}</span>
+                                <span className="bg-slate-800 text-slate-200 px-1.5 py-0.5 rounded text-[10px] font-semibold">Barco {p.boat} ({seats} lug.)</span>
+                                <span className="text-slate-400 text-[10px]">{qtd}</span>
                               </div>
                               <input
                                 type="checkbox"
                                 checked={isBlocked}
                                 onChange={() => { }} // Controlled via div onClick
-                                className="accent-rose-500 rounded cursor-pointer"
+                                className="accent-rose-500 rounded cursor-pointer ml-2"
                               />
                             </div>
                           );
@@ -957,11 +1019,11 @@ export default function App() {
                           newR[idx].provaUid = parseInt(e.target.value);
                           setRestricoes(newR);
                         }}
-                        className="bg-slate-950 rounded-lg px-3 py-1.5 text-sm font-medium border border-slate-700 focus:border-emerald-400 text-white outline-none cursor-pointer"
+                        className="bg-slate-950 rounded-lg px-3 py-1.5 text-sm font-medium border border-slate-700 focus:border-emerald-400 text-white outline-none cursor-pointer max-w-md truncate"
                       >
                         <option value="" disabled>Selecione uma prova...</option>
                         {provas.map(p => (
-                          <option key={p.uid} value={p.uid}>{p.id} — {p.date} {p.time} ({p.boat} • {p.seats} lug. • Classe {p.ageClass})</option>
+                          <option key={p.uid} value={p.uid}>{formatProvaFullDescription(p)}</option>
                         ))}
                       </select>
                     </div>
@@ -1045,15 +1107,109 @@ export default function App() {
             );
           })}
 
-          {restricoes.length === 0 && (
-            <div className="text-center flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
+                    {restricoes.length === 0 && (
+            <div className="text-center flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
               <div className="p-4 bg-slate-800/50 rounded-full mb-4"><IconLock /></div>
               <h3 className="text-lg font-medium text-slate-300">Nenhuma regra manual configurada</h3>
-              <p className="text-slate-500 mt-1 max-w-sm">
+              <p className="text-slate-500 mt-1 max-w-sm text-sm">
                 Utilize os botões acima para bloquear barcos/provas para um atleta ou fixar remadores em uma prova.
               </p>
             </div>
           )}
+
+          {/* Painel de Conferência e Ajuste da Configuração de Provas, Barcos e Atletas Fixos */}
+          <div className="mt-8 pt-6 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <IconAnchor className="text-sky-400" /> Resumo da Configuração das Provas & Barcos
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Verifique a configuração consolidada: Prova, quantidade de barcos (editável) e remadores fixados.
+                </p>
+              </div>
+              <span className="text-xs font-mono font-medium px-3 py-1 rounded-full bg-slate-800 text-slate-300">
+                {provas.length} prova(s) registradas
+              </span>
+            </div>
+
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+              <div className="overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left text-xs whitespace-nowrap">
+                  <thead className="bg-slate-950/70 text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="px-5 py-3.5">Prova</th>
+                      <th className="px-5 py-3.5">Horário / Data</th>
+                      <th className="px-5 py-3.5">Categoria & Barco</th>
+                      <th className="px-5 py-3.5 text-center">Qtd. Barcos</th>
+                      <th className="px-5 py-3.5">Atletas Fixos Obrigatórios</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                    {provas.map((p, pIdx) => {
+                      const fixRules = restricoes.filter(r => r.type === 'fix' && r.provaUid === p.uid);
+                      const fixedAtletaIds = fixRules.flatMap(r => r.atletaIds || []);
+                      const fixedNames = fixedAtletaIds.map(id => atletas.find(a => a.id === id)?.name).filter(Boolean);
+                      const seats = p.seats || getSeatsFromBoat(p.boat);
+
+                      return (
+                        <tr key={p.uid} className="hover:bg-slate-800/25 transition-colors">
+                          <td className="px-5 py-3 font-mono font-bold text-sky-400">
+                            {p.id}
+                          </td>
+                          <td className="px-5 py-3 text-slate-300">
+                            {p.date} às {p.time}
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className="font-semibold text-white">{p.boat}</span>
+                            <span className="text-slate-400 ml-1.5">({seats} lug.) • Classe {p.ageClass} ({p.sex})</span>
+                          </td>
+                          <td className="px-5 py-3 text-center">
+                            <div className="inline-flex items-center gap-2">
+                              <input
+                                type="number"
+                                min="1"
+                                max="10"
+                                value={p.amount || 2}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value) || 1;
+                                  const nextP = [...provas];
+                                  nextP[pIdx].amount = val;
+                                  setProvas(nextP);
+                                }}
+                                className="w-14 bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg px-2.5 py-1 text-center font-bold text-white text-xs outline-none transition-all"
+                              />
+                              <span className="text-slate-400 text-[11px]">barco(s)</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3">
+                            {fixedNames.length > 0 ? (
+                              <div className="flex flex-wrap gap-1.5">
+                                {fixedNames.map((name, i) => (
+                                  <span key={i} className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium text-[11px] flex items-center gap-1">
+                                    <IconAnchor className="w-3 h-3" /> {name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-slate-500 italic text-[11px]">Nenhum atleta fixado (livre alocação)</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {provas.length === 0 && (
+                      <tr>
+                        <td colSpan="5" className="text-center py-8 text-slate-500 italic">
+                          Nenhuma prova cadastrada para exibir a configuração.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -1073,6 +1229,100 @@ export default function App() {
         </p>
       </div>
 
+      {/* Quadro Especial: Template e Importação de Arquivos CSV */}
+      <section className="bg-gradient-to-r from-sky-950/40 via-slate-900 to-indigo-950/40 border border-sky-500/30 rounded-2xl p-6 shadow-md">
+        <div className="flex items-center gap-2.5 text-sky-400 font-bold text-base mb-2">
+          <IconUpload />
+          <span>Importação de Dados via Arquivo CSV & Templates Oficiais</span>
+        </div>
+        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+          Os dados do campeonato podem ser importados automaticamente via arquivos no formato <strong>.CSV</strong> (separados por ponto e vírgula <code>;</code> ou vírgula <code>,</code>). Utilize a estrutura de colunas abaixo:
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Template Provas */}
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <IconFlag className="text-sky-400" /> 1. Template de Provas (arqbasedia1.csv)
+              </span>
+              <span className="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-mono">6 colunas</span>
+            </div>
+            <p className="text-slate-400 text-xs mb-2">
+              Não inclui barcos nem atletas fixados no CSV. O default de barcos é <strong>2</strong> (configurado na interface).
+            </p>
+            <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto custom-scrollbar">
+              <div className="text-sky-400 font-bold mb-1">Id;Data;Hora;Sexo;Classe;Tipo</div>
+              <div>1;21/06;08:30;W;A;4-</div>
+              <div>2;21/06;08:37;M;H;8+</div>
+              <div>3;21/06;08:44;W;E;2x</div>
+            </div>
+          </div>
+
+          {/* Template Atletas */}
+          <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <IconUsers className="text-sky-400" /> 2. Template de Atletas (atletasdia1.csv)
+              </span>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-mono">6 colunas</span>
+            </div>
+            <p className="text-slate-400 text-xs mb-2">
+              Dados cadastrais com limites de participação e pontuação técnica estimada (0.0 a 1.0).
+            </p>
+            <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto custom-scrollbar">
+              <div className="text-indigo-400 font-bold mb-1">Nome;Minimo;Maximo;Sexo;Idade;Grau</div>
+              <div>Atleta 1;1;3;M;59;0.2</div>
+              <div>Atleta 2;1;3;M;59;0.8</div>
+              <div>Atleta 18;1;3;W;44;0.7</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quadro Exclusivo: Guia da Aba Fixar/Bloquear Atletas */}
+      <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-md">
+        <div className="flex items-center gap-2.5 text-amber-400 font-bold text-base mb-2">
+          <IconLock />
+          <span>Quadro Explicativo: Aba Fixar/Bloquear Atletas</span>
+        </div>
+        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+          Todas as preferências de escalação e regras de exceção são administradas <strong>exclusivamente na interface</strong> através da aba <em>Fixar/Bloquear Atletas</em>:
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 bg-slate-950/60 rounded-xl border border-emerald-900/40">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm mb-1.5">
+              <IconAnchor />
+              <span>Fixar em Prova (RF05)</span>
+            </div>
+            <p className="text-slate-400 text-xs leading-relaxed mb-2">
+              Permite vincular obrigatoriamente um ou mais remadores a uma prova específica.
+            </p>
+            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+              <li>O algoritmo preserva a vaga daquele atleta na guarnição.</li>
+              <li>Ideal para duplas ou quartetos já pré-definidos pela comissão técnica.</li>
+              <li>A quantidade de barcos da prova pode ser ajustada diretamente no painel inferior.</li>
+            </ul>
+          </div>
+
+          <div className="p-4 bg-slate-950/60 rounded-xl border border-rose-900/40">
+            <div className="flex items-center gap-2 text-rose-400 font-semibold text-sm mb-1.5">
+              <IconBan />
+              <span>Bloquear por Atleta (RF06)</span>
+            </div>
+            <p className="text-slate-400 text-xs leading-relaxed mb-2">
+              Impede que o atleta seja escalado em provas ou barcos indesejados.
+            </p>
+            <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+              <li><strong>Bloqueio de Tipo de Barco:</strong> ex: o atleta não rema Single Skiff (1X).</li>
+              <li><strong>Bloqueio de Prova:</strong> veta a participação em um horário específico por indisponibilidade.</li>
+              <li>Respeita integralmente os limites mínimo e máximo de participações.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Passo a Passo do Fluxo */}
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -1084,7 +1334,7 @@ export default function App() {
           <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl hover:border-slate-700 transition-colors">
             <div className="flex items-center gap-3 mb-2 text-sky-400 font-semibold">
               <IconDashboard />
-              <span>1. Configurar Parâmetros (Dashboard)</span>
+              <span>1. Configurar Parâmetros (Visão Geral)</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Defina o <strong>Intervalo de Descanso</strong> (mínimo de regatas entre participações de um mesmo atleta para evitar exaustão)
@@ -1110,7 +1360,7 @@ export default function App() {
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
               Informe a idade de cada remador, gênero, índice técnico estimado (0.0 a 1.0) e limites min/max de provas.
-              Na aba de <strong>Regras Manuais</strong>, você pode travar atletas em barcos específicos ou bloquear tipos de barcos/provas para remadores.
+              Na aba de <strong>Fixar/Bloquear Atletas</strong>, você pode travar atletas em barcos específicos ou bloquear tipos de barcos/provas para remadores.
             </p>
           </div>
 
@@ -1152,7 +1402,7 @@ export default function App() {
           </div>
 
           <div className="p-4 bg-slate-900 border border-slate-800/80 rounded-xl">
-            <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Regras Manuais: Fixar e Bloquear</h3>
+            <h3 className="text-white font-semibold text-sm mb-1 text-sky-300">Fixar/Bloquear Atletas</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 text-sm text-slate-300">
               <div className="p-3 bg-slate-950/60 rounded-lg border border-emerald-900/30">
                 <span className="font-semibold text-emerald-400 flex items-center gap-1.5 mb-1">
@@ -1254,7 +1504,7 @@ export default function App() {
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
               <span className="font-medium text-slate-300 flex items-center gap-3">
-                <IconLock /> Regras Manuais
+                <IconLock /> Fixar/Bloquear Atletas
               </span>
               {status.restricoesValid ? <IconCheckCircle /> : <IconXCircle />}
             </div>
@@ -1503,35 +1753,89 @@ export default function App() {
           </div>
         </div>
 
-        {/* Resumo de Participações dos Atletas (RNF08) */}
-        {athleteCounts.length > 0 && (
-          <div className="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <IconUsers /> Resumo de Participações por Remador (Min / Alocado / Max)
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1">
+        {/* Layout em Colunas: Coluna 1 = Resumo de Participações em Coluna Única, Coluna 2 = Tripulações */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+          {/* Coluna Única: Resumo de Participações por Remador (RF08) */}
+          <div className="xl:col-span-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col xl:sticky xl:top-4">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <IconUsers /> Resumo de Participações
+              </h3>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-sky-400 font-mono">
+                {athleteCounts.length} atletas
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+              Total de provas alocadas por remador em uma única coluna com controle dos limites [Mín - Máx].
+            </p>
+            
+            <div className="overflow-y-auto max-h-[620px] custom-scrollbar space-y-2.5 pr-1">
               {athleteCounts.map(ac => {
                 const isOver = ac.allocated > ac.max;
                 const isUnder = ac.allocated < ac.min;
+                const pct = ac.max > 0 ? Math.min(100, Math.round((ac.allocated / ac.max) * 100)) : 0;
                 return (
-                  <div key={ac.id} className={`p-2.5 rounded-xl border text-xs flex flex-col justify-between ${isOver ? 'bg-rose-950/30 border-rose-800/50 text-rose-300' :
-                      isUnder ? 'bg-amber-950/30 border-amber-800/50 text-amber-300' :
-                        'bg-slate-950 border-slate-800 text-slate-300'
-                    }`}>
-                    <span className="font-semibold truncate">{ac.name}</span>
-                    <div className="flex justify-between items-center mt-1 text-[11px] font-mono">
-                      <span className="text-slate-500">[{ac.min}-{ac.max}]</span>
-                      <span className="font-bold text-sky-400">{ac.allocated} prov.</span>
+                  <div
+                    key={ac.id}
+                    className={`p-3 rounded-xl border transition-all ${
+                      isOver
+                        ? 'bg-rose-950/20 border-rose-800/60'
+                        : isUnder
+                        ? 'bg-amber-950/20 border-amber-800/60'
+                        : ac.allocated > 0
+                        ? 'bg-emerald-950/20 border-emerald-800/40'
+                        : 'bg-slate-950/60 border-slate-800/80'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold text-sm truncate text-white">{ac.name}</span>
+                      <span
+                        className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                          isOver
+                            ? 'bg-rose-500/20 text-rose-300'
+                            : isUnder
+                            ? 'bg-amber-500/20 text-amber-300'
+                            : 'bg-sky-500/20 text-sky-300'
+                        }`}
+                      >
+                        {ac.allocated} prova{ac.allocated === 1 ? '' : 's'}
+                      </span>
+                    </div>
+
+                    <div className="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden my-2">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isOver ? 'bg-rose-500' : isUnder ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+
+                    <div className="flex justify-between items-center text-[11px] text-slate-400">
+                      <span>Limites: [{ac.min} a {ac.max}]</span>
+                      <span className="font-medium text-[10px] uppercase">
+                        {isOver ? (
+                          <span className="text-rose-400">⚠ Excede Máx</span>
+                        ) : isUnder ? (
+                          <span className="text-amber-400">⚠ Abaixo Mín</span>
+                        ) : (
+                          <span className="text-emerald-400">✓ Atendido</span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 );
               })}
+              {athleteCounts.length === 0 && (
+                <div className="text-center py-10 text-slate-500 text-xs">
+                  Nenhum remador registrado na solução.
+                </div>
+              )}
             </div>
           </div>
-        )}
 
-        {/* Lista de Tripulações com Rolagem Dedicada */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-sm flex flex-col">
+          {/* Lista de Tripulações com Rolagem Dedicada */}
+          <div className="xl:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-sm flex flex-col">
           <div className="p-4 border-b border-slate-800 bg-slate-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h3 className="text-slate-300 font-medium flex items-center gap-2">
               <IconFlag /> Tripulações Formadas ({displayAllocations.length})
@@ -1634,7 +1938,8 @@ export default function App() {
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
   };
 
   return (
@@ -1653,12 +1958,12 @@ export default function App() {
         {/* Menu Items */}
         <div className="p-4 space-y-1 overflow-y-auto flex-1 custom-scrollbar">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-2">Visão Geral</div>
-          <NavItem id="dashboard" icon={IconDashboard} label="Dashboard" disabled={isSolved} />
+          <NavItem id="dashboard" icon={IconDashboard} label="Visão Geral" disabled={isSolved} />
 
           <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Dados de Entrada</div>
           <NavItem id="provas" icon={IconFlag} label="Grade de Provas" disabled={isSolved} />
           <NavItem id="atletas" icon={IconUsers} label="Quadro de Atletas" disabled={isSolved} />
-          <NavItem id="restricoes" icon={IconLock} label="Regras Manuais" disabled={isSolved} />
+          <NavItem id="restricoes" icon={IconLock} label="Fixar/Bloquear Atletas" disabled={isSolved} />
 
           <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 px-2 mt-6">Processamento</div>
           <NavItem id="optimization" icon={IconZap} label="Gerar Resultado" disabled={isSolved && activeRoute !== 'optimization'} />
