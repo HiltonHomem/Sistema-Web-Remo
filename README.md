@@ -67,9 +67,9 @@ A solução oferece uma interface moderna, dark mode com visual sofisticado, val
 
 ---
 
-## 📐 Fundamentação Matemática
+## 📐 Fundamentação Matemática & Modelo de Referência
 
-O núcleo de resolução é baseado no modelo de programação linear inteira mista proposto na literatura (Ramalho, 2024 / Nataniel):
+O núcleo de modelagem e resolução é baseado na formulação matemática desenvolvida na dissertação de mestrado de **Nataniel Ramalho (2024)**, sob orientação da Profª. Dra. Simone Martins, que modela o problema de escalação ótima de remadores em regatas master através de Programação Linear Inteira Mista (PLIM):
 
 $$\max \sum_{j \in J} \sum_{k \in K_j} b_{jk}$$
 
@@ -182,15 +182,16 @@ Sistema-Web-Remo/
 
 ---
 
-## 👨‍💻 Autoria e Orientação
-
-- **Aluno:** [Hilton dos Santos Homem](https://github.com/HiltonHomem)
+## 👨‍💻 Autoria, Orientação & Referências
+ 
+- **Desenvolvimento da Aplicação & TCC:** [Hilton dos Santos Homem](https://github.com/HiltonHomem)
 - **Orientadora:** Profª. Dra. Simone Martins
+- **Base Teórica e Formulação Matemática:** Dissertação de Mestrado de **Nataniel Ramalho** (*"Otimização da Alocação de Remadores em Regatas Master"*, UFF, 2024), cujo modelo matemático serviu de fundação conceitual para o desenvolvimento desta plataforma web.
 - **Instituição:** Universidade Federal Fluminense (UFF) — Instituto de Computação
-- **Área:** Pesquisa Operacional, Algoritmos de Otimização e Desenvolvimento Web
-
+- **Área:** Pesquisa Operacional, Algoritmos de Otimização e Engenharia de Software
+ 
 ---
-
+ 
 <div align="center">
 Desenvolvido com dedicação para a comunidade de Remo Master do Brasil 🇧🇷
 </div>
